@@ -20,6 +20,23 @@ const (
 	Priv_Visitor = 2
 )
 
+type OfferInfo struct {
+	ID             uint   `gorm:"primarykey" json:"id"`
+	OfferStatus    string `gorm:"not null;unique;comment:" json:"offer_status"`
+	SchoolCountry  string `gorm:"not null;school_country" json:"school_country"`
+	Region         string `gorm:"not null;unique;comment:apply country region" json:"region"`
+	Degree         string `gorm:"not null;unique;comment:apply degree" json:"degree"`
+	Major          string `gorm:"not null;unique;comment:apply major" json:"username"`
+	SchoolName     string `gorm:"not null;unique;comment:apply schoolname" json:"major"`
+	Semester       string `gorm:"not null;unique;comment:apply semester" json:"semester"`
+	IeltsScore     int    `gorm:"not null;unique;comment:ielts score" json:"ielts_score"`
+	ToeflScore     int    `gorm:"not null;unique;comment:toefl score" json:"toefl_score"`
+	GpaPercentTage int    `gorm:"not null;unique;comment:gpa in percentage 85,95 etc" json:"gpa_percentage"`
+	GpaGrade       int    `gorm:"not null;unique;comment:gpa in grade 4.5,4.6 etc" json:"gpa_grade"`
+	MaxGpaGrade    int    `gorm:"not null;unique;comment:max gpa in grade 4,5 etc" json:"max_gpa_grade"`
+	CandidateMajor string `gorm:"not null;unique;comment:candidate's major" json:"candidate_major"`
+	SchoolLevel    string `gorm:"not null;unique;comment:school Level" json:"school_level"`
+}
 type User struct {
 	ID        uint      `gorm:"primarykey"`
 	Username  string    `gorm:"not null;unique;comment:用户账户" json:"username"`

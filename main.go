@@ -6,6 +6,7 @@ import (
 	"admin_project/global"
 	"admin_project/middlerware"
 	"admin_project/routers"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,12 +24,18 @@ func main() {
 	global.G_Viper = core.Viper()
 	//连接数据库
 	global.G_DB = core.Db()
-	global.G_DB.AutoMigrate(&global.User{}, &global.Comment{})
+	global.G_DB.AutoMigrate(&global.User{}, &global.Comment{}, &global.OfferInfo{})
 	db, _ := global.G_DB.DB()
 	defer db.Close()
 	//u := User{Password: "test",Username: "test4"}
 	//gDb.Create(&u)
 
+	// todo 删除
+	test := &global.OfferInfo{}
+	global.G_DB.Table("offer_infos").First(&test)
+	fmt.Println(test)
+
+	//
 	//admin 服务器启动
 	s := gin.Default()
 	//启动接口文档swagger
