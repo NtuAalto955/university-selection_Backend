@@ -30,11 +30,18 @@ func Db() *gorm.DB {
 			Colorful:      true,        // 禁用彩色打印
 		},
 	)
-	db, _ := gorm.Open(mysql.New(mysqlConfig), &gorm.Config{
+	db, err := gorm.Open(mysql.New(mysqlConfig), &gorm.Config{
 		Logger: newLogger,
 	})
+	if err != nil {
+		panic(err)
+	}
 
-	sqlDB, _ := db.DB()
+	sqlDB, err := db.DB()
+	if err != nil {
+		panic(err)
+	}
+
 	sqlDB.SetMaxIdleConns(m.MaxIdleConns)
 	sqlDB.SetMaxOpenConns(m.MaxOpenConns)
 
