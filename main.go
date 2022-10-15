@@ -6,6 +6,7 @@ import (
 	"admin_project/global"
 	"admin_project/middlerware"
 	"admin_project/routers"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,13 +19,15 @@ import (
 func main() {
 	//启动日志
 	global.GLog = core.Zap()
-	global.GLog.Debug("server runing")
+	global.GLog.Debug("server running")
 	//启动配置读取
 	global.G_Viper = core.Viper()
 	//连接数据库
 	global.G_DB = core.Db()
 	global.G_DB.AutoMigrate(&global.User{}, &global.Comment{})
 	db, _ := global.G_DB.DB()
+	fmt.Println(db)
+
 	defer db.Close()
 	//u := User{Password: "test",Username: "test4"}
 	//gDb.Create(&u)
@@ -59,7 +62,7 @@ func main() {
 }
 
 // ShowAccount godoc
-// @Summary Show a account
+// @Summary Show an account
 // @Tags Example API
 // @Description get string by ID
 // @Produce  json
