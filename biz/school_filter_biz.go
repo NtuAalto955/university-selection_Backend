@@ -58,8 +58,8 @@ func (biz *SchoolFilterBiz) FilterSchool(req *sysRequest.SchoolFilterReq) (*sysR
 			avgGrade += data.GpaGrade
 			gradeNum += 1
 		}
-		if data.GpaPercentTage != 0 {
-			avgPercentage += data.GpaPercentTage
+		if data.GpaPercentage != 0 {
+			avgPercentage += data.GpaPercentage
 			percentageNum += 1
 		}
 

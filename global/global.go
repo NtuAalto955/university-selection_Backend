@@ -31,7 +31,7 @@ type OfferInfo struct {
 	Semester       string `gorm:"not null;comment:apply semester" json:"semester"`
 	IeltsScore     int    `gorm:"not null;comment:ielts score" json:"ielts_score"`
 	ToeflScore     int    `gorm:"not null;comment:toefl score" json:"toefl_score"`
-	GpaPercentTage int    `gorm:"not null;comment:gpa in percentage 85,95 etc" json:"gpa_percentage"`
+	GpaPercentage  int    `gorm:"not null;comment:gpa in percentage 85,95 etc" json:"gpa_percentage"`
 	GpaGrade       int    `gorm:"not null;comment:gpa in grade 4.5,4.6 etc" json:"gpa_grade"`
 	MaxGpaGrade    int    `gorm:"not null;comment:max gpa in grade 4,5 etc" json:"max_gpa_grade"`
 	CandidateMajor string `gorm:"not null;comment:candidate's major" json:"candidate_major"`
