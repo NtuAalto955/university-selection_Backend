@@ -11,13 +11,21 @@ type Grade struct {
 	GpaScore        float64 `json:"gpa_score"`
 }
 type SchoolFilterRsp struct {
-	SchoolName  string   `json:"school_name"`
-	AcceptedNum int      `json:"accepted_num"`
-	DeclinedNum int      `json:"declined_num"`
-	SubjectList []string `json:"subject_list"`
-	AvgGrade    Grade    `json:"avg_grade"`
+	SchoolName   string       `json:"school_name"`
+	ApplyResults ApplyResults `json:"apply_results"`
+}
+type ApplyResults struct {
+	GpaRange        []AdmissionResult `json:"gpa_range"`
+	PercentageRange []AdmissionResult `json:"percentage_range"`
+	TotalResult     AdmissionResult   `json:"total_result"`
+	AvgGrade        Grade             `json:"avg_grade"`
+	SchoolRange     []AdmissionResult `json:"school_range"`
 }
 
+type AdmissionResult struct {
+	AcceptedNum int `json:"accepted_num"`
+	RejectedNum int `json:"rejected_num"`
+}
 type Login struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

@@ -21,21 +21,22 @@ const (
 )
 
 type OfferInfo struct {
-	ID             uint   `gorm:"primarykey" json:"id"`
-	OfferStatus    string `gorm:"not null;unique;comment:" json:"offer_status"`
-	SchoolCountry  string `gorm:"not null;school_country" json:"school_country"`
-	Region         string `gorm:"not null;comment:apply country region" json:"region"`
-	Degree         string `gorm:"not null;comment:apply degree" json:"degree"`
-	Major          string `gorm:"not null;comment:apply major" json:"username"`
-	SchoolName     string `gorm:"not null;comment:apply schoolname" json:"major"`
-	Semester       string `gorm:"not null;comment:apply semester" json:"semester"`
-	IeltsScore     int    `gorm:"not null;comment:ielts score" json:"ielts_score"`
-	ToeflScore     int    `gorm:"not null;comment:toefl score" json:"toefl_score"`
-	GpaPercentage  int    `gorm:"not null;comment:gpa in percentage 85,95 etc" json:"gpa_percentage"`
-	GpaGrade       int    `gorm:"not null;comment:gpa in grade 4.5,4.6 etc" json:"gpa_grade"`
-	MaxGpaGrade    int    `gorm:"not null;comment:max gpa in grade 4,5 etc" json:"max_gpa_grade"`
-	CandidateMajor string `gorm:"not null;comment:candidate's major" json:"candidate_major"`
-	SchoolLevel    string `gorm:"not null;comment:school Level" json:"school_level"`
+	ID             uint    `gorm:"primarykey" json:"id"`
+	ApplyYear      int     `gorm:"not null;comment:apply year" json:"apply_year"`
+	OfferStatus    int     `gorm:"not null;comment:" json:"offer_status"`
+	SchoolCountry  string  `gorm:"not null;school_country" json:"school_country"`
+	Region         string  `gorm:"not null;comment:apply country region" json:"region"`
+	Degree         string  `gorm:"not null;comment:apply degree" json:"degree"`
+	Major          string  `gorm:"not null;comment:apply major" json:"username"`
+	SchoolName     string  `gorm:"not null;comment:apply schoolname" json:"major"`
+	Semester       string  `gorm:"not null;comment:apply semester" json:"semester"`
+	IeltsScore     float64 `gorm:"not null;comment:ielts score" json:"ielts_score"`
+	ToeflScore     float64 `gorm:"not null;comment:toefl score" json:"toefl_score"`
+	GpaPercentage  float64 `gorm:"not null;comment:gpa in percentage 85,95 etc" json:"gpa_percentage"`
+	GpaGrade       float64 `gorm:"not null;comment:gpa in grade 4.5,4.6 etc" json:"gpa_grade"`
+	MaxGpaGrade    float64 `gorm:"not null;comment:max gpa in grade 4,5 etc" json:"max_gpa_grade"`
+	CandidateMajor string  `gorm:"not null;comment:candidate's major" json:"candidate_major"`
+	SchoolLevel    string  `gorm:"not null;comment:school Level" json:"school_level"`
 }
 type User struct {
 	ID        uint      `gorm:"primarykey"`
