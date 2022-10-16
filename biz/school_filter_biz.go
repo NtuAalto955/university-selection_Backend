@@ -31,7 +31,7 @@ func (biz *SchoolFilterBiz) FilterSchool(req *sysRequest.SchoolFilterReq) (*sysR
 	// 地区筛选
 	tx = tx.Where("region IN (?)", req.DestinationRegion)
 	// 专业筛选
-	tx = tx.Where("major = ?", req.Subject)
+	tx = tx.Where("candidate_major = ?", req.Subject)
 	err := tx.Find(&res).Error
 	if err != nil {
 		global.GLog.Error(fmt.Sprintf("select school failed, err :%v", err.Error()))
@@ -49,7 +49,7 @@ func (biz *SchoolFilterBiz) FilterSchool(req *sysRequest.SchoolFilterReq) (*sysR
 	avgPercentage := 0
 	percentageNum := 0
 	for _, data := range res {
-		if data.OfferStatus == "offer" || data.OfferStatus == "ad小奖" || data.OfferStatus == "ad无奖" {
+		if data.OfferStatus == "Offer" || data.OfferStatus == "AD小奖" || data.OfferStatus == "AD无奖" {
 			accept += 1
 		} else {
 			reject += 1
@@ -73,7 +73,7 @@ func (biz *SchoolFilterBiz) FilterSchool(req *sysRequest.SchoolFilterReq) (*sysR
 		avg.PercentageScore = float64(avgPercentage) / float64(percentageNum)
 	}
 	if gradeNum != 0 {
-		avg.PercentageScore = float64(avgGrade) / float64(gradeNum)
+		avg.GpaScore = float64(avgGrade) / float64(gradeNum)
 	}
 	ret := &sysRequest.SchoolFilterRsp{
 		SchoolName:  req.SchoolName,

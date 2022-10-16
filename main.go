@@ -32,11 +32,6 @@ func main() {
 	//u := User{Password: "test",Username: "test4"}
 	//gDb.Create(&u)
 
-	// todo 删除
-	test := &global.OfferInfo{}
-	global.G_DB.Table("offer_infos").First(&test)
-	fmt.Println(test)
-
 	//
 	//admin 服务器启动
 	s := gin.Default()
