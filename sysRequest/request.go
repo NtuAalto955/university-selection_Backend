@@ -8,13 +8,15 @@ type SchoolFilterReq struct {
 }
 type Grade struct {
 	PercentageScore float64 `json:"percentage_score"`
+	PercentageNum   int
 	GpaScore        float64 `json:"gpa_score"`
+	GpaNum          int
 }
 type SchoolFilterRsp struct {
-	SchoolName   string       `json:"school_name"`
-	ApplyResults ApplyResults `json:"apply_results"`
+	ApplyResults []ApplyResults `json:"apply_results"`
 }
 type ApplyResults struct {
+	SchoolName      string            `json:"school_name"`
 	GpaRange        []AdmissionResult `json:"gpa_range"`
 	PercentageRange []AdmissionResult `json:"percentage_range"`
 	TotalResult     AdmissionResult   `json:"total_result"`

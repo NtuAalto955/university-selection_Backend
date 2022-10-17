@@ -41,57 +41,55 @@ func (biz *SchoolFilterBiz) FilterSchool(req *sysRequest.SchoolFilterReq) (*sysR
 		return nil, nil
 	}
 
-	ret := biz.dataAccumulation(res)
-	ret.SchoolName = req.SchoolName
+	ret := biz.dataAggregation(res)
 	return ret, nil
 }
-func (biz *SchoolFilterBiz) dataAccumulation(offerList []*global.OfferInfo) *sysRequest.SchoolFilterRsp {
-	totalAccept := 0
-	totalReject := 0
-	gpaResult := biz.StatGpa(offerList)
-	percentageResult := biz.StatPercentage(offerList)
-	schoolLevelResult := biz.StatSchoolLevel(offerList)
+func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo) *sysRequest.SchoolFilterRsp {
+	schoolNameMap := make(map[string]*sysRequest.ApplyResults)
+	offerInfoMap := make(map[string][]*global.OfferInfo)
 
-	avgGrade := 0.0
-	gradeNum := 0.0
-	avgPercentage := 0.0
-	percentageNum := 0.0
 	for _, data := range offerList {
+		if _, ok := schoolNameMap[data.SchoolName]; !ok {
+			schoolNameMap[data.SchoolName] = &sysRequest.ApplyResults{
+				TotalResult: sysRequest.AdmissionResult{},
+				AvgGrade:    sysRequest.Grade{},
+			}
+			offerInfoMap[data.SchoolName] = make([]*global.OfferInfo, 0)
+		}
+		offerInfoMap[data.SchoolName] = append(offerInfoMap[data.SchoolName], data)
 		if data.OfferStatus == 1 {
-			totalAccept += 1
+			schoolNameMap[data.SchoolName].TotalResult.AcceptedNum += 1
 		} else {
-			totalReject += 1
+			schoolNameMap[data.SchoolName].TotalResult.RejectedNum += 1
 		}
 
 		if data.GpaGrade != 0 {
-			avgGrade += data.GpaGrade
-			gradeNum += 1
+			schoolNameMap[data.SchoolName].AvgGrade.GpaScore += data.GpaGrade
+			schoolNameMap[data.SchoolName].AvgGrade.GpaNum += 1
 		}
 		if data.GpaPercentage != 0 {
-			avgPercentage += data.GpaPercentage
-			percentageNum += 1
+			schoolNameMap[data.SchoolName].AvgGrade.PercentageScore += data.GpaPercentage
+			schoolNameMap[data.SchoolName].AvgGrade.PercentageNum += 1
 		}
 
 	}
-	avg := sysRequest.Grade{}
-	if percentageNum != 0 {
-		avg.PercentageScore = avgPercentage / percentageNum
-	}
-	if gradeNum != 0 {
-		avg.GpaScore = avgGrade / gradeNum
+	res := make([]sysRequest.ApplyResults, 0)
+	for schoolName, applyResult := range schoolNameMap {
+		applyResult.SchoolName = schoolName
+		if applyResult.AvgGrade.GpaNum != 0 {
+			applyResult.AvgGrade.GpaScore = applyResult.AvgGrade.GpaScore / float64(applyResult.AvgGrade.GpaNum)
+		}
+		if applyResult.AvgGrade.PercentageNum != 0 {
+			applyResult.AvgGrade.PercentageScore = applyResult.AvgGrade.PercentageScore / float64(applyResult.AvgGrade.PercentageNum)
+		}
+		applyResult.GpaRange = biz.StatGpa(offerInfoMap[schoolName])
+		applyResult.PercentageRange = biz.StatPercentage(offerInfoMap[schoolName])
+		applyResult.SchoolRange = biz.StatPercentage(offerInfoMap[schoolName])
+		res = append(res, *applyResult)
 	}
 
 	ret := &sysRequest.SchoolFilterRsp{
-		ApplyResults: sysRequest.ApplyResults{
-			GpaRange:        gpaResult,
-			PercentageRange: percentageResult,
-			TotalResult: sysRequest.AdmissionResult{
-				AcceptedNum: totalAccept,
-				RejectedNum: totalReject,
-			},
-			AvgGrade:    avg,
-			SchoolRange: schoolLevelResult,
-		},
+		ApplyResults: res,
 	}
 	return ret
 }
