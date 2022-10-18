@@ -85,7 +85,7 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo) *sysR
 		}
 		applyResult.GpaRange = biz.StatGpa(offerInfoMap[schoolName])
 		applyResult.PercentageRange = biz.StatPercentage(offerInfoMap[schoolName])
-		applyResult.SchoolRange = biz.StatPercentage(offerInfoMap[schoolName])
+		applyResult.SchoolRange = biz.StatSchoolLevel(offerInfoMap[schoolName])
 		res = append(res, *applyResult)
 	}
 
