@@ -1,5 +1,34 @@
 package sysRequest
 
+type SchoolFilterReq struct {
+	SchoolName        string   `json:"school_name"`
+	Subject           string   `json:"subject"`
+	Grade             Grade    `json:"grade"`
+	DestinationRegion []string `json:"destination_region"`
+}
+type Grade struct {
+	PercentageScore float64 `json:"percentage_score"`
+	PercentageNum   int
+	GpaScore        float64 `json:"gpa_score"`
+	GpaNum          int
+}
+type SchoolFilterRsp struct {
+	ApplyResults []ApplyResults `json:"apply_results"`
+}
+type ApplyResults struct {
+	SchoolName      string            `json:"school_name"`
+	Region          string            `json:"region""`
+	GpaRange        []AdmissionResult `json:"gpa_range"`
+	PercentageRange []AdmissionResult `json:"percentage_range"`
+	TotalResult     AdmissionResult   `json:"total_result"`
+	AvgGrade        Grade             `json:"avg_grade"`
+	SchoolRange     []AdmissionResult `json:"school_range"`
+}
+
+type AdmissionResult struct {
+	AcceptedNum int `json:"accepted_num"`
+	RejectedNum int `json:"rejected_num"`
+}
 type Login struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

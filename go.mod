@@ -7,7 +7,6 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/natefinch/lumberjack v2.0.0+incompatible
-	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/gin-swagger v1.3.3
 	github.com/swaggo/swag v1.7.8
 	go.uber.org/zap v1.19.1

@@ -8,6 +8,8 @@ import (
 	"admin_project/routers"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 // @contact.name API Support
@@ -24,7 +26,7 @@ func main() {
 	global.G_Viper = core.Viper()
 	//连接数据库
 	global.G_DB = core.Db()
-	global.G_DB.AutoMigrate(&global.User{}, &global.Comment{}, &global.OfferInfo{})
+	//global.G_DB.AutoMigrate(&global.User{}, &global.Comment{}, &global.OfferInfo{})
 	db, _ := global.G_DB.DB()
 	fmt.Println(db)
 
@@ -32,21 +34,17 @@ func main() {
 	//u := User{Password: "test",Username: "test4"}
 	//gDb.Create(&u)
 
-	// todo 删除
-	test := &global.OfferInfo{}
-	global.G_DB.Table("offer_infos").First(&test)
-	fmt.Println(test)
-
 	//
 	//admin 服务器启动
 	s := gin.Default()
 	//启动接口文档swagger
-	//s.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	//fmt.Println("在线api文档部署在：http://localhost:8080/swagger/index.html")
+	s.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	fmt.Println("在线api文档部署在：http://localhost:8080/swagger/index.html")
 	//公共路由 注册，登录，验证码
 	s.GET("/captcha", routers.Captcha)
 	s.POST("/register", routers.RegisterHandler)
 	s.POST("/login", routers.LoginHandler)
+	s.POST("/get_filter_school", routers.FilterSchoolHandler)
 	//用户路由   访问前需要认证token
 	usrRouter := s.Group("")
 
