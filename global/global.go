@@ -27,8 +27,8 @@ type OfferInfo struct {
 	SchoolCountry  string  `gorm:"not null;school_country" json:"school_country"`
 	Region         string  `gorm:"not null;comment:apply country region" json:"region"`
 	Degree         string  `gorm:"not null;comment:apply degree" json:"degree"`
-	Major          string  `gorm:"not null;comment:apply major" json:"username"`
-	SchoolName     string  `gorm:"not null;comment:apply schoolname" json:"major"`
+	MajorType      int     `gorm:"not null;comment:apply major" json:"major_type"`
+	SchoolName     string  `gorm:"not null;comment:apply schoolname" json:"school_name"`
 	Semester       string  `gorm:"not null;comment:apply semester" json:"semester"`
 	IeltsScore     float64 `gorm:"not null;comment:ielts score" json:"ielts_score"`
 	ToeflScore     float64 `gorm:"not null;comment:toefl score" json:"toefl_score"`
