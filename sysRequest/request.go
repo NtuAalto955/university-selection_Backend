@@ -2,7 +2,7 @@ package sysRequest
 
 type SchoolFilterReq struct {
 	SchoolName        string   `json:"school_name"`
-	Subject           string   `json:"subject"`
+	Subject           int      `json:"subject"`
 	Grade             Grade    `json:"grade"`
 	DestinationRegion []string `json:"destination_region"`
 }

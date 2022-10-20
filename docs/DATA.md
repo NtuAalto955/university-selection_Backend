@@ -1,6 +1,7 @@
 # 数据备忘录
 
 ## 建表
+
 ```sql
 create table offer_info_tab(
 	id int not null primary key Auto_increment,
@@ -157,12 +158,14 @@ Array<object>
 Example：
 
 #### 输入
+
 * 专业类别
 * 目标留学地
 * 本科档次
 * 分数
 
 #### 输入样例
+
 ```json
 {
     "school_name":"本科档次",
@@ -181,6 +184,7 @@ Example：
 * 学校档次所处的区间
 
 #### 输出样例
+
 ```json
 {
     "msg": "filter success",

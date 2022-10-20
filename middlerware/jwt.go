@@ -2,7 +2,6 @@ package middlerware
 
 import (
 	"admin_project/global"
-	"github.com/dgrijalva/jwt-go"
 	"time"
 )
 
