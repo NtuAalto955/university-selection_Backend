@@ -31,7 +31,7 @@ func (biz *SchoolFilterBiz) FilterSchool(req *sysRequest.SchoolFilterReq) (*sysR
 	// 地区筛选
 	tx = tx.Where("region IN (?)", req.DestinationRegion)
 	// 专业筛选
-	tx = tx.Where("major = ?", req.Subject)
+	tx = tx.Where("major_type = ?", req.Subject)
 	err := tx.Find(&res).Error
 	if err != nil {
 		global.GLog.Error(fmt.Sprintf("select school failed, err :%v", err.Error()))
