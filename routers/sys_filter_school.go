@@ -16,9 +16,10 @@ func FilterSchoolHandler(c *gin.Context) {
 	startTime := time.Now()
 	errCode := 200
 	defer func() {
-		costTime := time.Now().Sub(startTime).Seconds()
-		monitor.RefPromMonitor().ReportHttpCounter(c.Request.RemoteAddr, c.Request.Method, strconv.Itoa(errCode))
-		monitor.RefPromMonitor().ReportHttpHistogram(c.Request.RemoteAddr, c.Request.Method, strconv.Itoa(errCode), costTime)
+		costTime := time.Since(startTime).Seconds()
+
+		monitor.RefPromMonitor().ReportHttpCounter(c.Request.RemoteAddr, c.Request.RequestURI, strconv.Itoa(errCode))
+		monitor.RefPromMonitor().ReportHttpHistogram(c.Request.RemoteAddr, c.Request.RequestURI, strconv.Itoa(errCode), costTime)
 	}()
 
 	req := &sysRequest.SchoolFilterReq{}

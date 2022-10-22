@@ -23,14 +23,14 @@ func init() {
 			Name: "http_request_duration_seconds",
 			Help: "http request_process time",
 		},
-		[]string{"caller", "method", "error_code"},
+		[]string{"caller", "method", "errorCode"},
 	)
 	http_request_input_total := promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "http_request_input_total",
 			Help: "The total number of http request",
 		},
-		[]string{"caller", "method", "error_code"},
+		[]string{"caller", "method", "errorCode"},
 	)
 	// 注册指标，不使用默认的注册器
 	reg := prometheus.NewRegistry()
