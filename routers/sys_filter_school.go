@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"strconv"
 	"time"
 )
 
@@ -16,8 +17,8 @@ func FilterSchoolHandler(c *gin.Context) {
 	errCode := 200
 	defer func() {
 		costTime := time.Now().Sub(startTime).Seconds()
-		monitor.RefPromMonitor().ReportHttpCounter(c.Request.RemoteAddr, c.Request.Method, string(errCode))
-		monitor.RefPromMonitor().ReportHttpHistogram(c.Request.RemoteAddr, c.Request.Method, string(errCode), costTime)
+		monitor.RefPromMonitor().ReportHttpCounter(c.Request.RemoteAddr, c.Request.Method, strconv.Itoa(errCode))
+		monitor.RefPromMonitor().ReportHttpHistogram(c.Request.RemoteAddr, c.Request.Method, strconv.Itoa(errCode), costTime)
 	}()
 
 	req := &sysRequest.SchoolFilterReq{}
