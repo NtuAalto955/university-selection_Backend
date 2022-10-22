@@ -3,8 +3,8 @@ mysql:
   port: 3306
   dbname: university_selection
   config: charset=utf8mb4&parseTime=True&loc=Local
-  username: root
-  password:
+  username: admin
+  password: admin
   max-idle-conns: 0
   max-open-conns: 0
   logmode:
