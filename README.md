@@ -16,7 +16,7 @@
 配置管理 viper  
 web后台 gin  
 api文档生成 swagger
-
+监控：prometheus
 鉴权：jwt
 
 图像验证码生成 base64captcha  

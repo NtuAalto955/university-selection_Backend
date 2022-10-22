@@ -18,6 +18,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/prometheus/client_golang v1.4.0
 	github.com/spf13/viper v1.10.1
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )
