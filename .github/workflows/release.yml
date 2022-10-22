@@ -16,13 +16,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Go #配置GO 环境
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
+#     - name: Set up Go #配置GO 环境
+#       uses: actions/setup-go@v3
+#       with:
+#         go-version: 1.18
 
-    - name: Build # 编译项目
-      run: go build -v ./...
+#     - name: Build # 编译项目
+#       run: go build -v ./...
 
     - name: 发布到阿里云
       uses: easingthemes/ssh-deploy@v2.1.5
@@ -49,4 +49,5 @@ jobs:
         password: ${{ secrets.ALIYUN_SERVER_PWD}}
         script: |
           cd /root/university-selection_Backend
+          go build
           ./admin_project
