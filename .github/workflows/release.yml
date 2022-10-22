@@ -51,5 +51,4 @@ jobs:
           cd /root/university-selection_Backend
           go build
           sh ../rc.sh
-          nohup ./admin_project &
           exit
