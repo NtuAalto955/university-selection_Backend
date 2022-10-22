@@ -25,11 +25,17 @@ jobs:
       run: go build -v ./...
 
     - name: 发布到阿里云
-      uses: wlixcc/SFTP-Deploy-Action@v1.0 # 使用 SFTP 协议上传到阿里云
-      with:
-          username: 'root'
-          server: '${{ secrets.ALIYUN_SERVER_HOST }}'
-          ssh_private_key: '${{ secrets.ALIYUN_SERVER_PRIVATE_KEY }}'
-          local_path: './*'
-          remote_path: '/root/university-selection_Backend/'
-          args: "-o ConnectTimeout=5"
+      uses: easingthemes/ssh-deploy@v2.1.5
+      env:
+          #私钥
+          SSH_PRIVATE_KEY: ${{ secrets.ALIYUN_SERVER_PRIVATE_KEY }}
+          #SCp参数
+          ARGS: "-rltgoDzvO --delete"
+          #源目录
+          SOURCE: "./"
+          #服务器Ip:换成你的服务器iP
+          REMOTE_HOST:  ${{ secrets.ALIYUN_SERVER_HOST }}
+          #用户
+          REMOTE_USER: "root"
+          #目标地址
+          TARGET: "/root/university-selection_Backend"
