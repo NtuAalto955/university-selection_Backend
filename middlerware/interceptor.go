@@ -17,7 +17,6 @@ func ReportProm(c *gin.Context) {
 		startTime = time.Now()
 	}
 	costTime := time.Since(startTime.(time.Time)).Seconds()
-
 	monitor.RefPromMonitor().ReportHttpCounter(c.Request.RequestURI, strconv.Itoa(errCode.(int)))
 	monitor.RefPromMonitor().ReportHttpHistogram(c.Request.RequestURI, strconv.Itoa(errCode.(int)), costTime)
 
