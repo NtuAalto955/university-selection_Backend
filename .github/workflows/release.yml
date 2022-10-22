@@ -16,19 +16,16 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Go #配置GO 环境
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
+#     - name: Set up Go #配置GO 环境
+#       uses: actions/setup-go@v3
+#       with:
+#         go-version: 1.18
 
-    - name: Build # 编译项目
-      run: go build -v ./...
+#     - name: Build # 编译项目
+#       run: go build -v ./...
 
     - name: 发布到阿里云
       uses: easingthemes/ssh-deploy@v2.1.5
-      with:
-        script: |
-          nohub /root/university-selection_Backend/admin_project &
       env:
           #私钥
           SSH_PRIVATE_KEY: ${{ secrets.ALIYUN_SERVER_PRIVATE_KEY }}
@@ -42,4 +39,15 @@ jobs:
           REMOTE_USER: "root"
           #目标地址
           TARGET: "/root/university-selection_Backend"
-
+          
+    - name: Deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host:  ${{ secrets.ALIYUN_SERVER_HOST }}
+        username: "root"
+          #私钥
+        password: ${{ secrets.ALIYUN_SERVER_PWD}}
+        script: |
+          cd /root/university-selection_Backend
+          go build
+          ./admin_project
