@@ -8,6 +8,7 @@ import (
 	"admin_project/routers"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
@@ -45,6 +46,9 @@ func main() {
 	s.POST("/register", routers.RegisterHandler)
 	s.POST("/login", routers.LoginHandler)
 	s.POST("/get_filter_school", routers.FilterSchoolHandler)
+
+	// 上报promethus
+	s.GET("metrics", gin.WrapH(promhttp.Handler()))
 	//用户路由   访问前需要认证token
 	usrRouter := s.Group("")
 

@@ -3,8 +3,6 @@ package monitor
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"net/http"
 )
 
 func RefPromMonitor() *PromMonitor {
@@ -39,9 +37,6 @@ func init() {
 	reg.MustRegister(http_request_duration_seconds, http_request_input_total)
 	monitor.RequestHistogram = http_request_duration_seconds
 	monitor.RequestCounter = http_request_input_total
-	//
-	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe("localhost:8000", nil)
 
 }
 
