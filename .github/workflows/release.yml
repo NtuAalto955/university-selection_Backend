@@ -46,7 +46,7 @@ jobs:
         host:  ${{ secrets.ALIYUN_SERVER_HOST }}
         username: "root"
           #私钥
-        SSH_PRIVATE_KEY: ${{ secrets.ALIYUN_SERVER_PRIVATE_KEY }}
+        password: ${{ secrets.ALIYUN_SERVER_PRIVATE_KEY }}
         script: |
           cd /root/university-selection_Backend
           ./admin_project
