@@ -23,14 +23,14 @@ func init() {
 			Name: "http_request_duration_seconds",
 			Help: "http request_process time",
 		},
-		[]string{"caller", "method", "errorCode"},
+		[]string{"method", "errorCode"},
 	)
 	http_request_input_total := promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "http_request_input_total",
 			Help: "The total number of http request",
 		},
-		[]string{"caller", "method", "errorCode"},
+		[]string{"method", "errorCode"},
 	)
 	// 注册指标，不使用默认的注册器
 	reg := prometheus.NewRegistry()
@@ -40,10 +40,10 @@ func init() {
 
 }
 
-func (monitor *PromMonitor) ReportHttpCounter(caller, method string, errorCode string) {
-	monitor.RequestCounter.WithLabelValues(caller, method, errorCode).Inc()
+func (monitor *PromMonitor) ReportHttpCounter(method string, errorCode string) {
+	monitor.RequestCounter.WithLabelValues(method, errorCode).Inc()
 }
 
-func (monitor *PromMonitor) ReportHttpHistogram(caller, method string, errorCode string, time float64) {
-	monitor.RequestHistogram.WithLabelValues(caller, method, errorCode).Observe(time)
+func (monitor *PromMonitor) ReportHttpHistogram(method string, errorCode string, time float64) {
+	monitor.RequestHistogram.WithLabelValues(method, errorCode).Observe(time)
 }
