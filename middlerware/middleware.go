@@ -3,8 +3,13 @@ package middlerware
 import (
 	"admin_project/global"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
+func InjectCtx(c *gin.Context) {
+	c.Set("processingTime", time.Now())
+	c.Set("errorCode", 0)
+}
 func Auth(c *gin.Context) {
 
 	tokenString := c.GetHeader("Authorization")

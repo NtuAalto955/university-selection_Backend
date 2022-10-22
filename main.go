@@ -42,26 +42,30 @@ func main() {
 	s.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	fmt.Println("在线api文档部署在：http://localhost:8080/swagger/index.html")
 	//公共路由 注册，登录，验证码
-	s.GET("/captcha", routers.Captcha)
-	s.POST("/register", routers.RegisterHandler)
-	s.POST("/login", routers.LoginHandler)
-	s.POST("/get_filter_school", routers.FilterSchoolHandler)
-
-	// 上报promethus
-	s.GET("metrics", gin.WrapH(promhttp.Handler()))
-	//用户路由   访问前需要认证token
-	usrRouter := s.Group("")
-
-	usrRouter.Use(middlerware.Auth)
+	publicRouter := s.Group("")
+	publicRouter.Use(middlerware.InjectCtx)
 	{
-		usrRouter.GET("userinfo", routers.GetinfoHandler)
-		usrRouter.POST("deleteUser", routers.DeleteUserHandler)
-		usrRouter.POST("changepassword", routers.ChangePassword)
-
-		s.POST("/addcomment", routers.AddComment)
-		s.POST("/deletecomment", routers.DeleteComment)
-		s.GET("/getcomment", routers.GetComment)
+		s.GET("/captcha", routers.Captcha, middlerware.ReportProm)
+		s.POST("/register", routers.RegisterHandler, middlerware.ReportProm)
+		s.POST("/login", routers.LoginHandler, middlerware.ReportProm)
+		s.POST("/get_filter_school", routers.FilterSchoolHandler, middlerware.ReportProm)
+		// 上报promethus
+		s.GET("metrics", gin.WrapH(promhttp.Handler()), middlerware.ReportProm)
 	}
+
+	//用户路由   访问前需要认证token
+	//usrRouter := s.Group("")
+	//
+	//usrRouter.Use(middlerware.Auth)
+	//{
+	//	usrRouter.GET("userinfo", routers.GetinfoHandler)
+	//	usrRouter.POST("deleteUser", routers.DeleteUserHandler)
+	//	usrRouter.POST("changepassword", routers.ChangePassword)
+	//
+	//	s.POST("/addcomment", routers.AddComment)
+	//	s.POST("/deletecomment", routers.DeleteComment)
+	//	s.GET("/getcomment", routers.GetComment)
+	//}
 
 	// 服务启动
 	if err := s.Run(); err != nil {

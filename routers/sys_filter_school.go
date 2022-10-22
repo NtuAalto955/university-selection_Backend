@@ -3,23 +3,17 @@ package routers
 import (
 	"admin_project/biz"
 	"admin_project/global"
-	"admin_project/monitor"
 	"admin_project/sysRequest"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"strconv"
-	"time"
 )
 
 func FilterSchoolHandler(c *gin.Context) {
-	startTime := time.Now()
 	errCode := 200
-	defer func() {
-		costTime := time.Since(startTime).Seconds()
 
-		monitor.RefPromMonitor().ReportHttpCounter(c.Request.RequestURI, strconv.Itoa(errCode))
-		monitor.RefPromMonitor().ReportHttpHistogram(c.Request.RequestURI, strconv.Itoa(errCode), costTime)
+	defer func() {
+		c.Set("errorCode", errCode)
 	}()
 
 	req := &sysRequest.SchoolFilterReq{}
