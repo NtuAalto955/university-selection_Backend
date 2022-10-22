@@ -10,7 +10,6 @@ create table offer_info_tab(
     school_country varchar(64) NOT NULL comment "apply country name",
     region varchar(64) NOT NULL comment "apply country region",
     degree varchar(64) NOT NULL comment "apply degree",
-    major varchar(64) NOT NULL comment "apply major",
     major_type int comment "apply major type",
 	school_name varchar(64) NOT NULL comment "apply schoolname",
     semester varchar(64) NOT NULL comment "apply semester",
