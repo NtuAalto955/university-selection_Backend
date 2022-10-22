@@ -50,6 +50,6 @@ jobs:
         script: |
           cd /root/university-selection_Backend
           go build
-          ps aux|grep admin|awk '{print $2}'| xargs kill
+          ps aux|grep -v color|grep -i ./admin_project|awk '{print $2}'|xargs kill
           nohup ./admin_project &
           exit
