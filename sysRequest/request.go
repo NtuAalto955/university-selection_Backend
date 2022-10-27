@@ -18,6 +18,7 @@ type SchoolFilterRsp struct {
 type ApplyResults struct {
 	SchoolName      string            `json:"school_name"`
 	Region          string            `json:"region"`
+	Country         string            `json:"country"`
 	GpaRange        []AdmissionResult `json:"gpa_range"`
 	PercentageRange []AdmissionResult `json:"percentage_range"`
 	TotalResult     AdmissionResult   `json:"total_result"`

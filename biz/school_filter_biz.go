@@ -77,6 +77,7 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo) *sysR
 	for schoolName, applyResult := range schoolNameMap {
 		applyResult.SchoolName = schoolName
 		applyResult.Region = offerInfoMap[schoolName][0].Region
+		applyResult.Country = offerInfoMap[schoolName][0].SchoolCountry
 		if applyResult.AvgGrade.GpaNum != 0 {
 			applyResult.AvgGrade.GpaScore = applyResult.AvgGrade.GpaScore / float64(applyResult.AvgGrade.GpaNum)
 		}
