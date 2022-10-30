@@ -62,35 +62,10 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo, schoo
 		}
 
 		offerInfoMap[data.SchoolName][data.ApplyYear] = append(offerInfoMap[data.SchoolName][data.ApplyYear], data)
-		if IsOfferAdmitted(data) {
-			schoolSet[data.SchoolName].TotalResult.AcceptedNum += 1
-		} else {
-			schoolSet[data.SchoolName].TotalResult.RejectedNum += 1
-		}
-
-		if data.GpaGrade != 0 {
-			schoolSet[data.SchoolName].AvgGrade.GpaScore += data.GpaGrade
-			schoolSet[data.SchoolName].AvgGrade.GpaNum += 1
-		}
-		if data.GpaPercentage != 0 {
-			schoolSet[data.SchoolName].AvgGrade.PercentageScore += data.GpaPercentage
-			schoolSet[data.SchoolName].AvgGrade.PercentageNum += 1
-		}
 	}
 	res := make([]sysRequest.ApplyResults, 0)
 	// 分年份处理数据
 	for schoolName, applyResult := range schoolSet {
-		if schoolSet[schoolName].AvgGrade.GpaNum != 0 {
-			schoolSet[schoolName].AvgGrade.GpaScore = schoolSet[schoolName].AvgGrade.GpaScore / float64(schoolSet[schoolName].AvgGrade.GpaNum)
-			schoolSet[schoolName].AvgGrade.GpaScore, _ = decimal.NewFromFloat(schoolSet[schoolName].AvgGrade.GpaScore).Round(2).Float64()
-
-		}
-		if schoolSet[schoolName].AvgGrade.PercentageNum != 0 {
-			schoolSet[schoolName].AvgGrade.PercentageScore = schoolSet[schoolName].AvgGrade.PercentageScore / float64(schoolSet[schoolName].AvgGrade.PercentageNum)
-			schoolSet[schoolName].AvgGrade.PercentageScore, _ = decimal.NewFromFloat(schoolSet[schoolName].AvgGrade.PercentageScore).Round(2).Float64()
-
-		}
-
 		for year, offerListPerYear := range offerInfoMap[schoolName] {
 			gpaRange := biz.StatGpa(offerListPerYear)
 			PercentageRange := biz.StatPercentage(offerListPerYear)
@@ -111,17 +86,23 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo, schoo
 
 				if IsOfferAdmitted(data) {
 					applyResult.AdmissionYear[year].TotalResult.AcceptedNum += 1
+					applyResult.TotalResult.AcceptedNum += 1
 				} else {
-					applyResult.AdmissionYear[year].TotalResult.RejectedNum = 1
+					applyResult.AdmissionYear[year].TotalResult.RejectedNum += 1
+					applyResult.TotalResult.RejectedNum += 1
 				}
 
 				if data.GpaGrade != 0 {
 					applyResult.AdmissionYear[year].AvgGrade.GpaScore += data.GpaGrade
 					applyResult.AdmissionYear[year].AvgGrade.GpaNum += 1
+					applyResult.AvgGrade.GpaScore += data.GpaGrade
+					applyResult.AvgGrade.GpaNum += 1
 				}
 				if data.GpaPercentage != 0 {
 					applyResult.AdmissionYear[year].AvgGrade.PercentageScore += data.GpaPercentage
 					applyResult.AdmissionYear[year].AvgGrade.PercentageNum += 1
+					applyResult.AvgGrade.PercentageScore += data.GpaPercentage
+					applyResult.AvgGrade.PercentageNum += 1
 				}
 			}
 			if applyResult.AdmissionYear[year].AvgGrade.GpaNum != 0 {
@@ -134,6 +115,15 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo, schoo
 				applyResult.AdmissionYear[year].AvgGrade.PercentageScore, _ = decimal.NewFromFloat(applyResult.AdmissionYear[year].AvgGrade.PercentageScore).Round(2).Float64()
 			}
 
+		}
+		if schoolSet[schoolName].AvgGrade.GpaNum != 0 {
+			schoolSet[schoolName].AvgGrade.GpaScore = schoolSet[schoolName].AvgGrade.GpaScore / float64(schoolSet[schoolName].AvgGrade.GpaNum)
+			schoolSet[schoolName].AvgGrade.GpaScore, _ = decimal.NewFromFloat(schoolSet[schoolName].AvgGrade.GpaScore).Round(2).Float64()
+
+		}
+		if schoolSet[schoolName].AvgGrade.PercentageNum != 0 {
+			schoolSet[schoolName].AvgGrade.PercentageScore = schoolSet[schoolName].AvgGrade.PercentageScore / float64(schoolSet[schoolName].AvgGrade.PercentageNum)
+			schoolSet[schoolName].AvgGrade.PercentageScore, _ = decimal.NewFromFloat(schoolSet[schoolName].AvgGrade.PercentageScore).Round(2).Float64()
 		}
 		res = append(res, *applyResult)
 	}
