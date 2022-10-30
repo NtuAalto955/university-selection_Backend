@@ -1,8 +1,8 @@
 package sysRequest
 
 type SchoolFilterReq struct {
-	SchoolName        string   `json:"school_name"`
-	Subject           int      `json:"subject"`
+	SchoolLevel       string   `json:"school_level"`
+	Major             int      `json:"major"`
 	Grade             Grade    `json:"grade"`
 	DestinationRegion []string `json:"destination_region"`
 }
@@ -16,16 +16,24 @@ type SchoolFilterRsp struct {
 	ApplyResults []ApplyResults `json:"apply_results"`
 }
 type ApplyResults struct {
-	SchoolName      string            `json:"school_name"`
-	Region          string            `json:"region"`
-	Country         string            `json:"country"`
+	SchoolName      string                   `json:"school_name"`
+	AdmissionYear   map[int]*AdmissionDetail `json:"admission_year"`
+	Region          string                   `json:"region"`
+	Country         string                   `json:"country"`
+	GpaRange        []AdmissionResult        `json:"gpa_range"`
+	PercentageRange []AdmissionResult        `json:"percentage_range"`
+	SchoolRange     []AdmissionResult        `json:"school_range"`
+	TotalResult     AdmissionResult          `json:"total_result"`
+	AvgGrade        Grade                    `json:"avg_grade"`
+}
+type AdmissionDetail struct {
+	ApplyYear       int               `json:"apply_year"`
 	GpaRange        []AdmissionResult `json:"gpa_range"`
 	PercentageRange []AdmissionResult `json:"percentage_range"`
+	SchoolRange     []AdmissionResult `json:"school_range"`
 	TotalResult     AdmissionResult   `json:"total_result"`
 	AvgGrade        Grade             `json:"avg_grade"`
-	SchoolRange     []AdmissionResult `json:"school_range"`
 }
-
 type AdmissionResult struct {
 	AcceptedNum int `json:"accepted_num"`
 	RejectedNum int `json:"rejected_num"`

@@ -48,7 +48,7 @@ func main() {
 		publicRouter.GET("/captcha", routers.Captcha, middlerware.ReportProm)
 		publicRouter.POST("/register", routers.RegisterHandler, middlerware.ReportProm)
 		publicRouter.POST("/login", routers.LoginHandler, middlerware.ReportProm)
-		publicRouter.POST("/get_filter_school", routers.FilterSchoolHandler, middlerware.ReportProm)
+		publicRouter.POST("/get_filter_school", routers.FilterSchoolHandler(), middlerware.ReportProm)
 		// 上报promethus
 		publicRouter.GET("metrics", gin.WrapH(promhttp.Handler()), middlerware.ReportProm)
 	}
