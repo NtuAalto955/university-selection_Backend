@@ -29,7 +29,6 @@ func main() {
 	global.G_DB = core.Db()
 	//global.G_DB.AutoMigrate(&global.User{}, &global.Comment{}, &global.OfferInfo{})
 	db, _ := global.G_DB.DB()
-	fmt.Println(db)
 
 	defer db.Close()
 	//u := User{Password: "test",Username: "test4"}
@@ -43,7 +42,9 @@ func main() {
 	fmt.Println("在线api文档部署在：http://localhost:8080/swagger/index.html")
 	//公共路由 注册，登录，验证码
 	publicRouter := s.Group("")
+	publicRouter.Use(middlerware.TlsHandler())
 	publicRouter.Use(middlerware.InjectCtx)
+
 	{
 		publicRouter.GET("/captcha", routers.Captcha, middlerware.ReportProm)
 		publicRouter.POST("/register", routers.RegisterHandler, middlerware.ReportProm)
@@ -67,8 +68,8 @@ func main() {
 	//	s.GET("/getcomment", routers.GetComment)
 	//}
 
-	// 服务启动
-	if err := s.Run(); err != nil {
+	// 服务启动在8080端口,使用https，
+	if err := s.RunTLS(":8080", "ssl.pem", "ssl.key"); err != nil {
 		global.GLog.Error("server is fail!")
 	}
 }
