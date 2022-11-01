@@ -24,7 +24,7 @@ jobs:
 #     - name: Build # 编译项目
 #       run: go build -v ./...
 
-    - name: 发布到腾讯云.
+    - name: 发布到腾讯云
       uses: easingthemes/ssh-deploy@v2.1.5
       env:
           #私钥
