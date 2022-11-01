@@ -36,12 +36,13 @@ func main() {
 
 	//
 	//admin 服务器启动
-	s := gin.Default()
+	https := gin.Default()
+	http := gin.Default()
 	//启动接口文档swagger
-	s.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	https.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	fmt.Println("在线api文档部署在：http://localhost:8080/swagger/index.html")
 	//公共路由 注册，登录，验证码
-	publicRouter := s.Group("")
+	publicRouter := https.Group("")
 	publicRouter.Use(middlerware.TlsHandler())
 	publicRouter.Use(middlerware.InjectCtx)
 
@@ -50,10 +51,14 @@ func main() {
 		publicRouter.POST("/register", routers.RegisterHandler, middlerware.ReportProm)
 		publicRouter.POST("/login", routers.LoginHandler, middlerware.ReportProm)
 		publicRouter.POST("/get_filter_school", routers.FilterSchoolHandler(), middlerware.ReportProm)
-		// 上报promethus
-		publicRouter.GET("metrics", gin.WrapH(promhttp.Handler()), middlerware.ReportProm)
+
 	}
 
+	httpRouter := http.Group("/")
+	{
+		// 上报promethus
+		httpRouter.GET("metrics", gin.WrapH(promhttp.Handler()), middlerware.ReportProm)
+	}
 	//用户路由   访问前需要认证token
 	//usrRouter := s.Group("")
 	//
@@ -69,9 +74,10 @@ func main() {
 	//}
 
 	// 服务启动在8080端口,使用https，
-	if err := s.RunTLS(":8080", "ssl.pem", "ssl.key"); err != nil {
+	if err := https.RunTLS(":80", "ssl.pem", "ssl.key"); err != nil {
 		global.GLog.Error("server is fail!")
 	}
+	http.Run(":8080")
 }
 
 // ShowAccount godoc
