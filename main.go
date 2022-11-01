@@ -74,10 +74,16 @@ func main() {
 	//}
 
 	// 服务启动在8080端口,使用https，
-	if err := https.RunTLS(":80", "ssl.pem", "ssl.key"); err != nil {
-		global.GLog.Error("server is fail!")
+	go func() {
+		if err := https.RunTLS(":80", "ssl.pem", "ssl.key"); err != nil {
+			global.GLog.Error("https server is fail!")
+		}
+	}()
+
+	if err := http.Run(":8080"); err != nil {
+		global.GLog.Error("http server is fail!")
+
 	}
-	http.Run(":8080")
 }
 
 // ShowAccount godoc
