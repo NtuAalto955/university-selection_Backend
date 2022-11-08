@@ -73,9 +73,9 @@ func main() {
 	//	s.GET("/getcomment", routers.GetComment)
 	//}
 
-	// 服务启动在8080端口,使用https，
+	// 服务启动在443端口,使用https，
 	go func() {
-		if err := https.RunTLS(":80", "ssl.pem", "ssl.key"); err != nil {
+		if err := https.RunTLS(":443", "ssl.pem", "ssl.key"); err != nil {
 			global.GLog.Error("https server is fail!")
 		}
 	}()
