@@ -366,8 +366,8 @@ func IsOfferAdmitted(data *global.OfferInfo) bool {
 }
 func mergeRange(target, source []sysRequest.AdmissionResult) []sysRequest.AdmissionResult {
 	for index, result := range source {
-		target[index].AcceptedNum = result.AcceptedNum
-		target[index].RejectedNum = result.RejectedNum
+		target[index].AcceptedNum += result.AcceptedNum
+		target[index].RejectedNum += result.RejectedNum
 	}
 	return target
 
