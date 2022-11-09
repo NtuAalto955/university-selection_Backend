@@ -295,7 +295,7 @@ func (biz *SchoolFilterBiz) StatPercentage(data []*global.OfferInfo) []sysReques
 
 	}
 	percentageResult = append(percentageResult, percentage0To76, percentage76To78, percentage78To80, percentage80To82, percentage82To84,
-		percentage84To86, percentage86To88, percentage88To90, percentage88To90, percentage90To100)
+		percentage84To86, percentage86To88, percentage88To90, percentage90To100)
 	return percentageResult
 }
 
