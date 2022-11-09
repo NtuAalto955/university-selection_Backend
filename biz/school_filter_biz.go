@@ -38,109 +38,141 @@ func (biz *SchoolFilterBiz) FilterSchool(req *sysRequest.SchoolFilterReq) (*sysR
 	return ret, nil
 }
 func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo, schoolLevel string) *sysRequest.SchoolFilterRsp {
-	schoolSet := make(map[string]*sysRequest.ApplyResults)
+	// region - country -result
+	result := make(map[string]map[string][]*sysRequest.Results)
 
+	regionCountryList := make(map[string][]string)
+	countrySchoolList := make(map[string][]string)
 	// schoolName - year - offerInfo
 	offerInfoMap := make(map[string]map[int][]*global.OfferInfo)
 	// schoolName - year - 平均分
 	offerList = biz.SchoolLevelFilter(offerList, schoolLevel)
 	// 总数据
 	for _, data := range offerList {
-		if _, ok := schoolSet[data.SchoolName]; !ok {
-			schoolSet[data.SchoolName] = &sysRequest.ApplyResults{
-				SchoolName:      data.SchoolName,
-				AdmissionYear:   make(map[int]*sysRequest.AdmissionDetail),
-				Region:          data.Region,
-				Country:         data.SchoolCountry,
-				GpaRange:        make([]sysRequest.AdmissionResult, 8),
-				PercentageRange: make([]sysRequest.AdmissionResult, 9),
-				SchoolRange:     make([]sysRequest.AdmissionResult, 4),
-				TotalResult:     sysRequest.AdmissionResult{},
-				AvgGrade:        sysRequest.Grade{},
+		// 针对每一个学校
+		if _, ok := offerInfoMap[data.SchoolName]; !ok {
+
+			if _, ok := result[data.Region]; !ok {
+				result[data.Region] = make(map[string][]*sysRequest.Results)
 			}
+			if _, ok := result[data.Region][data.SchoolCountry]; !ok {
+				regionCountryList[data.Region] = append(regionCountryList[data.Region], data.SchoolCountry)
+				result[data.Region][data.SchoolCountry] = make([]*sysRequest.Results, 0)
+			}
+
+			countrySchoolList[data.SchoolCountry] = append(countrySchoolList[data.SchoolCountry], data.SchoolName)
 			offerInfoMap[data.SchoolName] = make(map[int][]*global.OfferInfo)
 		}
 
 		offerInfoMap[data.SchoolName][data.ApplyYear] = append(offerInfoMap[data.SchoolName][data.ApplyYear], data)
 	}
-	res := make([]sysRequest.ApplyResults, 0)
+
 	// 分年份处理数据
-	for schoolName, applyResult := range schoolSet {
-		for year, offerListPerYear := range offerInfoMap[schoolName] {
+	for schoolName, applyResult := range offerInfoMap {
+		schoolReuslt := &sysRequest.Results{
+			SchoolName:      schoolName,
+			AdmissionYear:   make(map[int]*sysRequest.AdmissionDetail),
+			GpaRange:        make([]sysRequest.AdmissionResult, 8),
+			PercentageRange: make([]sysRequest.AdmissionResult, 9),
+			SchoolRange:     make([]sysRequest.AdmissionResult, 4),
+			TotalResult:     sysRequest.AdmissionResult{},
+			AvgGrade:        sysRequest.Grade{},
+		}
+		for year, offerListPerYear := range applyResult {
 			gpaRange := biz.StatGpa(offerListPerYear)
 			PercentageRange := biz.StatPercentage(offerListPerYear)
 			SchoolRange := biz.StatSchoolLevel(offerListPerYear)
-			applyResult.AdmissionYear[year] = &sysRequest.AdmissionDetail{
-				ApplyYear:       year,
+			schoolReuslt.AdmissionYear[year] = &sysRequest.AdmissionDetail{
 				GpaRange:        gpaRange,
 				PercentageRange: PercentageRange,
 				SchoolRange:     SchoolRange,
 				TotalResult:     sysRequest.AdmissionResult{},
 				AvgGrade:        sysRequest.Grade{},
 			}
-			applyResult.GpaRange = mergeRange(applyResult.GpaRange, gpaRange)
-			applyResult.PercentageRange = mergeRange(applyResult.PercentageRange, PercentageRange)
-			applyResult.SchoolRange = mergeRange(applyResult.SchoolRange, SchoolRange)
+			schoolReuslt.GpaRange = mergeRange(schoolReuslt.GpaRange, gpaRange)
+			schoolReuslt.PercentageRange = mergeRange(schoolReuslt.PercentageRange, PercentageRange)
+			schoolReuslt.SchoolRange = mergeRange(schoolReuslt.SchoolRange, SchoolRange)
 
 			for _, data := range offerListPerYear {
+				if schoolReuslt.Region == "" {
+					schoolReuslt.Region = data.Region
+					schoolReuslt.Country = data.SchoolCountry
+				}
 
 				if IsOfferAdmitted(data) {
-					applyResult.AdmissionYear[year].TotalResult.AcceptedNum += 1
-					applyResult.TotalResult.AcceptedNum += 1
+					schoolReuslt.AdmissionYear[year].TotalResult.AcceptedNum += 1
+					schoolReuslt.TotalResult.AcceptedNum += 1
 				} else {
-					applyResult.AdmissionYear[year].TotalResult.RejectedNum += 1
-					applyResult.TotalResult.RejectedNum += 1
+					schoolReuslt.AdmissionYear[year].TotalResult.RejectedNum += 1
+					schoolReuslt.TotalResult.RejectedNum += 1
 				}
 
 				if data.GpaGrade != 0 {
-					applyResult.AdmissionYear[year].AvgGrade.GpaScore += data.GpaGrade
-					applyResult.AdmissionYear[year].AvgGrade.GpaNum += 1
-					applyResult.AvgGrade.GpaScore += data.GpaGrade
-					applyResult.AvgGrade.GpaNum += 1
+					schoolReuslt.AdmissionYear[year].AvgGrade.GpaScore += data.GpaGrade
+					schoolReuslt.AdmissionYear[year].AvgGrade.GpaNum += 1
+					schoolReuslt.AvgGrade.GpaScore += data.GpaGrade
+					schoolReuslt.AvgGrade.GpaNum += 1
 				}
 				if data.GpaPercentage != 0 {
-					applyResult.AdmissionYear[year].AvgGrade.PercentageScore += data.GpaPercentage
-					applyResult.AdmissionYear[year].AvgGrade.PercentageNum += 1
-					applyResult.AvgGrade.PercentageScore += data.GpaPercentage
-					applyResult.AvgGrade.PercentageNum += 1
+					schoolReuslt.AdmissionYear[year].AvgGrade.PercentageScore += data.GpaPercentage
+					schoolReuslt.AdmissionYear[year].AvgGrade.PercentageNum += 1
+					schoolReuslt.AvgGrade.PercentageScore += data.GpaPercentage
+					schoolReuslt.AvgGrade.PercentageNum += 1
 				}
 			}
-			if applyResult.AdmissionYear[year].AvgGrade.GpaNum != 0 {
-				applyResult.AdmissionYear[year].AvgGrade.GpaScore = applyResult.AdmissionYear[year].AvgGrade.GpaScore / float64(applyResult.AdmissionYear[year].AvgGrade.GpaNum)
-				applyResult.AdmissionYear[year].AvgGrade.GpaScore, _ = decimal.NewFromFloat(applyResult.AdmissionYear[year].AvgGrade.GpaScore).Round(2).Float64()
+			if schoolReuslt.AdmissionYear[year].AvgGrade.GpaNum != 0 {
+				schoolReuslt.AdmissionYear[year].AvgGrade.GpaScore = schoolReuslt.AdmissionYear[year].AvgGrade.GpaScore / float64(schoolReuslt.AdmissionYear[year].AvgGrade.GpaNum)
+				schoolReuslt.AdmissionYear[year].AvgGrade.GpaScore, _ = decimal.NewFromFloat(schoolReuslt.AdmissionYear[year].AvgGrade.GpaScore).Round(2).Float64()
 
 			}
-			if applyResult.AdmissionYear[year].AvgGrade.PercentageNum != 0 {
-				applyResult.AdmissionYear[year].AvgGrade.PercentageScore = applyResult.AdmissionYear[year].AvgGrade.PercentageScore / float64(applyResult.AdmissionYear[year].AvgGrade.PercentageNum)
-				applyResult.AdmissionYear[year].AvgGrade.PercentageScore, _ = decimal.NewFromFloat(applyResult.AdmissionYear[year].AvgGrade.PercentageScore).Round(2).Float64()
+			if schoolReuslt.AdmissionYear[year].AvgGrade.PercentageNum != 0 {
+				schoolReuslt.AdmissionYear[year].AvgGrade.PercentageScore = schoolReuslt.AdmissionYear[year].AvgGrade.PercentageScore / float64(schoolReuslt.AdmissionYear[year].AvgGrade.PercentageNum)
+				schoolReuslt.AdmissionYear[year].AvgGrade.PercentageScore, _ = decimal.NewFromFloat(schoolReuslt.AdmissionYear[year].AvgGrade.PercentageScore).Round(2).Float64()
 			}
 
 		}
-		if schoolSet[schoolName].AvgGrade.GpaNum != 0 {
-			schoolSet[schoolName].AvgGrade.GpaScore = schoolSet[schoolName].AvgGrade.GpaScore / float64(schoolSet[schoolName].AvgGrade.GpaNum)
-			schoolSet[schoolName].AvgGrade.GpaScore, _ = decimal.NewFromFloat(schoolSet[schoolName].AvgGrade.GpaScore).Round(2).Float64()
+		if schoolReuslt.AvgGrade.GpaNum != 0 {
+			schoolReuslt.AvgGrade.GpaScore = schoolReuslt.AvgGrade.GpaScore / float64(schoolReuslt.AvgGrade.GpaNum)
+			schoolReuslt.AvgGrade.GpaScore, _ = decimal.NewFromFloat(schoolReuslt.AvgGrade.GpaScore).Round(2).Float64()
 
 		}
-		if schoolSet[schoolName].AvgGrade.PercentageNum != 0 {
-			schoolSet[schoolName].AvgGrade.PercentageScore = schoolSet[schoolName].AvgGrade.PercentageScore / float64(schoolSet[schoolName].AvgGrade.PercentageNum)
-			schoolSet[schoolName].AvgGrade.PercentageScore, _ = decimal.NewFromFloat(schoolSet[schoolName].AvgGrade.PercentageScore).Round(2).Float64()
+		if schoolReuslt.AvgGrade.PercentageNum != 0 {
+			schoolReuslt.AvgGrade.PercentageScore = schoolReuslt.AvgGrade.PercentageScore / float64(schoolReuslt.AvgGrade.PercentageNum)
+			schoolReuslt.AvgGrade.PercentageScore, _ = decimal.NewFromFloat(schoolReuslt.AvgGrade.PercentageScore).Round(2).Float64()
 		}
-		res = append(res, *applyResult)
+		result[schoolReuslt.Region][schoolReuslt.Country] = append(result[schoolReuslt.Region][schoolReuslt.Country], schoolReuslt)
 	}
 	// 按学校名称排序
-	sort.Slice(res, func(i, j int) bool {
-		isChinese := regexp.MustCompile("^[\u4e00-\u9fa5]") //中文开头默认放到后面
-		if isChinese.MatchString(res[i].SchoolName) {
-			return false
-		}
-		if res[i].SchoolName < res[j].SchoolName {
-			return true
-		}
 
-		return false
-	})
+	for _, countryResult := range result {
+		for _, res := range countryResult {
+			sort.Slice(res, func(i, j int) bool {
+				isChinese := regexp.MustCompile("^[\u4e00-\u9fa5]+") //中文开头默认放到后面
+				if isChinese.MatchString(res[i].SchoolName) {
+					return false
+				}
+				return res[i].SchoolName < res[j].SchoolName
+			})
+		}
+	}
+	for _, res := range regionCountryList {
+		sort.Slice(res, func(i, j int) bool {
+			return res[i] < res[j]
+		})
+	}
+	for _, res := range countrySchoolList {
+		sort.Slice(res, func(i, j int) bool {
+			isChinese := regexp.MustCompile("^[\u4e00-\u9fa5]+") //中文开头默认放到后面
+			if isChinese.MatchString(res[i]) {
+				return false
+			}
+			return res[i][0] < res[j][0]
+		})
+	}
 	ret := &sysRequest.SchoolFilterRsp{
-		ApplyResults: res,
+		ApplyResults:      result,
+		CountrySchoolList: countrySchoolList,
+		RegionCountryList: regionCountryList,
 	}
 	return ret
 }

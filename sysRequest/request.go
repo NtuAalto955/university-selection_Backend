@@ -13,9 +13,11 @@ type Grade struct {
 	GpaNum          int     `json:"gpa_num"`
 }
 type SchoolFilterRsp struct {
-	ApplyResults []ApplyResults `json:"apply_results"`
+	ApplyResults      map[string]map[string][]*Results `json:"apply_results"`
+	RegionCountryList map[string][]string              `json:"region_country_list"`
+	CountrySchoolList map[string][]string              `json:"country_school_list"`
 }
-type ApplyResults struct {
+type Results struct {
 	SchoolName      string                   `json:"school_name"`
 	AdmissionYear   map[int]*AdmissionDetail `json:"admission_year"`
 	Region          string                   `json:"region"`
@@ -27,7 +29,6 @@ type ApplyResults struct {
 	AvgGrade        Grade                    `json:"avg_grade"`
 }
 type AdmissionDetail struct {
-	ApplyYear       int               `json:"apply_year"`
 	GpaRange        []AdmissionResult `json:"gpa_range"`
 	PercentageRange []AdmissionResult `json:"percentage_range"`
 	SchoolRange     []AdmissionResult `json:"school_range"`
