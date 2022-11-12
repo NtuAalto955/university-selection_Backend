@@ -49,6 +49,9 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo, schoo
 	// 总数据
 	for _, data := range offerList {
 		// 针对每一个学校
+		if data.SchoolCountry == "nan" {
+			data.SchoolCountry = "Others"
+		}
 		if _, ok := offerInfoMap[data.SchoolName]; !ok {
 
 			if _, ok := result[data.Region]; !ok {
