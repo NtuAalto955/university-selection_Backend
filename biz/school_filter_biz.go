@@ -181,6 +181,7 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo, schoo
 func (biz *SchoolFilterBiz) StatGpa(data []*global.OfferInfo) []sysRequest.AdmissionResult {
 	gpaResult := make([]sysRequest.AdmissionResult, 0)
 
+	gpaNoScore := sysRequest.AdmissionResult{}
 	gpa0To2P6 := sysRequest.AdmissionResult{}
 	gpa2P6To2P8 := sysRequest.AdmissionResult{}
 	gpa2P8To3P0 := sysRequest.AdmissionResult{}
@@ -190,6 +191,13 @@ func (biz *SchoolFilterBiz) StatGpa(data []*global.OfferInfo) []sysRequest.Admis
 	gpa3P6To3P8 := sysRequest.AdmissionResult{}
 	gpa3P8To4P0 := sysRequest.AdmissionResult{}
 	for _, row := range data {
+		if row.GpaGrade == 0 {
+			if IsOfferAdmitted(row) {
+				gpaNoScore.AcceptedNum += 1
+			} else {
+				gpaNoScore.RejectedNum += 1
+			}
+		}
 		if row.GpaGrade < 2.6 {
 			if IsOfferAdmitted(row) {
 				gpa0To2P6.AcceptedNum += 1
@@ -247,12 +255,13 @@ func (biz *SchoolFilterBiz) StatGpa(data []*global.OfferInfo) []sysRequest.Admis
 			}
 		}
 	}
-	gpaResult = append(gpaResult, gpa0To2P6, gpa2P6To2P8, gpa2P8To3P0, gpa3P0To3P2, gpa3P2To3P4, gpa3P4To3P6, gpa3P6To3P8, gpa3P8To4P0)
+	gpaResult = append(gpaResult, gpaNoScore, gpa0To2P6, gpa2P6To2P8, gpa2P8To3P0, gpa3P0To3P2, gpa3P2To3P4, gpa3P4To3P6, gpa3P6To3P8, gpa3P8To4P0)
 	return gpaResult
 }
 func (biz *SchoolFilterBiz) StatPercentage(data []*global.OfferInfo) []sysRequest.AdmissionResult {
 	percentageResult := make([]sysRequest.AdmissionResult, 0)
 
+	percentageNoScore := sysRequest.AdmissionResult{}
 	percentage0To76 := sysRequest.AdmissionResult{}
 	percentage76To78 := sysRequest.AdmissionResult{}
 	percentage78To80 := sysRequest.AdmissionResult{}
@@ -263,6 +272,13 @@ func (biz *SchoolFilterBiz) StatPercentage(data []*global.OfferInfo) []sysReques
 	percentage88To90 := sysRequest.AdmissionResult{}
 	percentage90To100 := sysRequest.AdmissionResult{}
 	for _, row := range data {
+		if row.GpaPercentage == 0 {
+			if IsOfferAdmitted(row) {
+				percentageNoScore.AcceptedNum += 1
+			} else {
+				percentageNoScore.RejectedNum += 1
+			}
+		}
 		if row.GpaPercentage < 76 {
 			if IsOfferAdmitted(row) {
 				percentage0To76.AcceptedNum += 1
@@ -328,7 +344,7 @@ func (biz *SchoolFilterBiz) StatPercentage(data []*global.OfferInfo) []sysReques
 		}
 
 	}
-	percentageResult = append(percentageResult, percentage0To76, percentage76To78, percentage78To80, percentage80To82, percentage82To84,
+	percentageResult = append(percentageResult, percentageNoScore, percentage0To76, percentage76To78, percentage78To80, percentage80To82, percentage82To84,
 		percentage84To86, percentage86To88, percentage88To90, percentage90To100)
 	return percentageResult
 }
