@@ -74,7 +74,7 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo, schoo
 		ok, key := checkIsSchoolProcessed(schoolName, schoolNameMap)
 		if !ok {
 			schoolResult = &sysRequest.Results{
-				SchoolName:      schoolName,
+				SchoolName:      key,
 				AdmissionYear:   make(map[int]*sysRequest.AdmissionDetail),
 				GpaRange:        make([]sysRequest.AdmissionResult, 8),
 				PercentageRange: make([]sysRequest.AdmissionResult, 9),
@@ -82,7 +82,7 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo, schoo
 				TotalResult:     sysRequest.AdmissionResult{},
 				AvgGrade:        sysRequest.Grade{},
 			}
-			schoolNameMap[schoolName] = schoolResult
+			schoolNameMap[key] = schoolResult
 		} else {
 			schoolResult = schoolNameMap[key]
 		}
@@ -407,8 +407,15 @@ func mergeRange(target, source []sysRequest.AdmissionResult) []sysRequest.Admiss
 
 }
 func checkIsSchoolProcessed(schoolName string, schoolNameMap map[string]*sysRequest.Results) (bool, string) {
-	chinese := regexp.MustCompile("[\u4e00-\u9fa5]+") // 去除中文
+	schoolName = strings.ReplaceAll(schoolName, "（", "(")
+	schoolName = strings.ReplaceAll(schoolName, "）", ")")
+
+	removeClaus := regexp.MustCompile("\\((.*)\\)") // 去除括号内容
+	schoolName = string(removeClaus.ReplaceAll([]byte(schoolName), []byte("")))
+
+	chinese := regexp.MustCompile("[\u4e00-\u9fa5|,()（）-]+") // 去除中文
 	schoolName = string(chinese.ReplaceAll([]byte(schoolName), []byte("")))
+	schoolName = strings.TrimSpace(schoolName)
 	for key := range schoolNameMap {
 		if strings.Contains(schoolName, key) || strings.Contains(key, schoolName) {
 			return true, key

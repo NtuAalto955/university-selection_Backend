@@ -4,7 +4,7 @@ import (
 	"admin_project/biz"
 	"admin_project/global"
 	"admin_project/sysRequest"
-	"archive/zip"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -47,16 +47,15 @@ func FilterSchoolHandler() gin.HandlerFunc {
 			global.GLog.Error(fmt.Sprintf("marshal error,err:%v", err))
 		}
 		w := &buffer.Buffer{}
-		zipWriter := zip.NewWriter(w)
-		file, _ := zipWriter.Create("result.txt")
-		file.Write(retJson)
+		zipWriter := gzip.NewWriter(w)
+		zipWriter.Write(retJson)
 		zipWriter.Close()
 		errCode = 200
 
 		c.JSON(errCode, gin.H{
 			"success": true,
 			"msg":     "filter success",
-			"result":  w.String(),
+			"result":  w.Bytes(),
 		})
 	}
 }
