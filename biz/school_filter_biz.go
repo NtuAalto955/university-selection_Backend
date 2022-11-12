@@ -404,7 +404,7 @@ func mergeRange(target, source []sysRequest.AdmissionResult) []sysRequest.Admiss
 
 }
 func checkIsSchoolProcessed(schoolName string, schoolNameMap map[string]*sysRequest.Results) string {
-	for key, _ := range schoolNameMap {
+	for key := range schoolNameMap {
 		if strings.Contains(schoolName, key) || strings.Contains(key, schoolName) {
 			return key
 		}
@@ -416,8 +416,12 @@ func calculateAvg(data map[string]map[string][]*sysRequest.Results) (map[string]
 	countrySchoolList := make(map[string][]string)
 	for region, regionValue := range data {
 		for country, countryValue := range regionValue {
+			if country == "nan" {
+				country = "Others"
+			}
 			regionCountryList[region] = append(regionCountryList[region], country)
 			for _, value := range countryValue {
+
 				countrySchoolList[country] = append(countrySchoolList[country], value.SchoolName)
 				// 计算每年平均值
 				for _, perYearValue := range value.AdmissionYear {
