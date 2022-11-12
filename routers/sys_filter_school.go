@@ -56,6 +56,7 @@ func FilterSchoolHandler() gin.HandlerFunc {
 			"success": true,
 			"msg":     "filter success",
 			"result":  w.Bytes(),
+			//"result": res,
 		})
 	}
 }

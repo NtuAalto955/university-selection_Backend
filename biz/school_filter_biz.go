@@ -45,7 +45,7 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo, schoo
 	// schoolName - year - offerInfo
 	offerInfoMap := make(map[string]map[int][]*global.OfferInfo)
 	// schoolName - year - 平均分
-	offerList = biz.SchoolLevelFilter(offerList, schoolLevel)
+	//offerList = biz.SchoolLevelFilter(offerList, schoolLevel)
 	// 总数据
 	for _, data := range offerList {
 		// 针对每一个学校
@@ -412,10 +412,10 @@ func checkIsSchoolProcessed(schoolName string, schoolNameMap map[string]*sysRequ
 
 	removeClaus := regexp.MustCompile("\\((.*)\\)") // 去除括号内容
 	schoolName = string(removeClaus.ReplaceAll([]byte(schoolName), []byte("")))
-
-	chinese := regexp.MustCompile("[\u4e00-\u9fa5|,()（）-]+") // 去除中文
-	schoolName = string(chinese.ReplaceAll([]byte(schoolName), []byte("")))
-	schoolName = strings.TrimSpace(schoolName)
+	//
+	//chinese := regexp.MustCompile("[\u4e00-\u9fa5|,()（）-]+") // 去除中文
+	//schoolName = string(chinese.ReplaceAll([]byte(schoolName), []byte(" ")))
+	//schoolName = strings.TrimSpace(schoolName)
 	for key := range schoolNameMap {
 		if strings.Contains(schoolName, key) || strings.Contains(key, schoolName) {
 			return true, key
