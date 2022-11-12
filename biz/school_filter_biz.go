@@ -76,8 +76,8 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo, schoo
 			schoolResult = &sysRequest.Results{
 				SchoolName:      key,
 				AdmissionYear:   make(map[int]*sysRequest.AdmissionDetail),
-				GpaRange:        make([]sysRequest.AdmissionResult, 8),
-				PercentageRange: make([]sysRequest.AdmissionResult, 9),
+				GpaRange:        make([]sysRequest.AdmissionResult, 9),
+				PercentageRange: make([]sysRequest.AdmissionResult, 10),
 				SchoolRange:     make([]sysRequest.AdmissionResult, 4),
 				TotalResult:     sysRequest.AdmissionResult{},
 				AvgGrade:        sysRequest.Grade{},
