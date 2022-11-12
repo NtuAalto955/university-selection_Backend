@@ -71,8 +71,8 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo, schoo
 	// 分年份处理数据
 	for schoolName, applyResult := range offerInfoMap {
 		var schoolResult *sysRequest.Results
-		key := checkIsSchoolProcessed(schoolName, schoolNameMap)
-		if key == "" {
+		ok, key := checkIsSchoolProcessed(schoolName, schoolNameMap)
+		if !ok {
 			schoolResult = &sysRequest.Results{
 				SchoolName:      schoolName,
 				AdmissionYear:   make(map[int]*sysRequest.AdmissionDetail),
@@ -139,7 +139,7 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo, schoo
 			}
 
 		}
-		if key == "" {
+		if !ok {
 			result[schoolResult.Region][schoolResult.Country] = append(result[schoolResult.Region][schoolResult.Country], schoolResult)
 
 		}
@@ -406,13 +406,15 @@ func mergeRange(target, source []sysRequest.AdmissionResult) []sysRequest.Admiss
 	return target
 
 }
-func checkIsSchoolProcessed(schoolName string, schoolNameMap map[string]*sysRequest.Results) string {
+func checkIsSchoolProcessed(schoolName string, schoolNameMap map[string]*sysRequest.Results) (bool, string) {
+	chinese := regexp.MustCompile("[\u4e00-\u9fa5]+") // 去除中文
+	schoolName = string(chinese.ReplaceAll([]byte(schoolName), []byte("")))
 	for key := range schoolNameMap {
 		if strings.Contains(schoolName, key) || strings.Contains(key, schoolName) {
-			return key
+			return true, key
 		}
 	}
-	return ""
+	return false, schoolName
 }
 func calculateAvg(data map[string]map[string][]*sysRequest.Results) (map[string]map[string][]*sysRequest.Results, map[string][]string, map[string][]string) {
 	regionCountryList := make(map[string][]string)

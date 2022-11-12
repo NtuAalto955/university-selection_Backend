@@ -4,8 +4,11 @@ import (
 	"admin_project/biz"
 	"admin_project/global"
 	"admin_project/sysRequest"
+	"archive/zip"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap/buffer"
 )
 
 func FilterSchoolHandler() gin.HandlerFunc {
@@ -39,24 +42,21 @@ func FilterSchoolHandler() gin.HandlerFunc {
 			return
 		}
 
-		//resJson, err := json.Marshal(res)
-
+		retJson, err := json.Marshal(res)
 		if err != nil {
-			global.GLog.Error(fmt.Sprintf("Marshal error:%v", err))
-			errCode = 400
-			c.JSON(errCode, gin.H{
-				"success": false,
-				"msg":     "学校筛选失败",
-				"result":  err,
-			})
-			return
+			global.GLog.Error(fmt.Sprintf("marshal error,err:%v", err))
 		}
+		w := &buffer.Buffer{}
+		zipWriter := zip.NewWriter(w)
+		file, _ := zipWriter.Create("result.txt")
+		file.Write(retJson)
+		zipWriter.Close()
 		errCode = 200
 
 		c.JSON(errCode, gin.H{
 			"success": true,
 			"msg":     "filter success",
-			"result":  res,
+			"result":  w.String(),
 		})
 	}
 }
