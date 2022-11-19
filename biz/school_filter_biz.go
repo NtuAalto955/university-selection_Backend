@@ -198,7 +198,7 @@ func (biz *SchoolFilterBiz) StatGpa(data []*global.OfferInfo) []sysRequest.Admis
 				gpaNoScore.RejectedNum += 1
 			}
 		}
-		if row.GpaGrade < 2.6 {
+		if row.GpaGrade < 2.6 && row.GpaGrade > 0 {
 			if IsOfferAdmitted(row) {
 				gpa0To2P6.AcceptedNum += 1
 			} else {
@@ -279,7 +279,7 @@ func (biz *SchoolFilterBiz) StatPercentage(data []*global.OfferInfo) []sysReques
 				percentageNoScore.RejectedNum += 1
 			}
 		}
-		if row.GpaPercentage < 76 {
+		if row.GpaPercentage < 76 && row.GpaPercentage > 0 {
 			if IsOfferAdmitted(row) {
 				percentage0To76.AcceptedNum += 1
 			} else {
