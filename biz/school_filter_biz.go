@@ -45,7 +45,7 @@ func (biz *SchoolFilterBiz) dataAggregation(offerList []*global.OfferInfo, schoo
 	// schoolName - year - offerInfo
 	offerInfoMap := make(map[string]map[int][]*global.OfferInfo)
 	// schoolName - year - 平均分
-	offerList = biz.SchoolLevelFilter(offerList, schoolLevel)
+	//offerList = biz.SchoolLevelFilter(offerList, schoolLevel)
 	// 总数据
 	for _, data := range offerList {
 		// 针对每一个学校

@@ -10,3 +10,4 @@
 {"level":"ERROR","ts":"2022-01-06 15:14:48","file":"admin_project/main.go:55","msg":"server is fail!"}
 {"level":"ERROR","ts":"2022-01-09 15:34:20","file":"core/viper.go:27","msg":"config changed"}
 {"level":"ERROR","ts":"2022-01-09 15:35:13","file":"core/viper.go:27","msg":"config changed"}
+{"level":"ERROR","ts":"2022-10-31 23:17:55","file":"university-selection_Backend/main.go:73","msg":"server is fail!"}
