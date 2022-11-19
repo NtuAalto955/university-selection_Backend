@@ -354,6 +354,7 @@ func (biz *SchoolFilterBiz) StatSchoolLevel(data []*global.OfferInfo) []sysReque
 	schoolFirstLevel := sysRequest.AdmissionResult{}
 	schoolSecondLevel := sysRequest.AdmissionResult{}
 	schoolThirdLevel := sysRequest.AdmissionResult{}
+	schoolFourthLevel := sysRequest.AdmissionResult{}
 	schoolOther := sysRequest.AdmissionResult{}
 	for _, row := range data {
 		if row.SchoolLevel == "985/211" {
@@ -370,11 +371,18 @@ func (biz *SchoolFilterBiz) StatSchoolLevel(data []*global.OfferInfo) []sysReque
 				schoolSecondLevel.RejectedNum += 1
 			}
 		}
-		if row.SchoolLevel == "海本" {
+		if row.SchoolLevel == "二本" {
 			if IsOfferAdmitted(row) {
 				schoolThirdLevel.AcceptedNum += 1
 			} else {
 				schoolThirdLevel.RejectedNum += 1
+			}
+		}
+		if row.SchoolLevel == "海外" {
+			if IsOfferAdmitted(row) {
+				schoolFourthLevel.AcceptedNum += 1
+			} else {
+				schoolFourthLevel.RejectedNum += 1
 			}
 		}
 		if row.SchoolLevel == "其他" {
@@ -385,7 +393,7 @@ func (biz *SchoolFilterBiz) StatSchoolLevel(data []*global.OfferInfo) []sysReque
 			}
 		}
 	}
-	schoolLevelResult = append(schoolLevelResult, schoolFirstLevel, schoolSecondLevel, schoolThirdLevel, schoolOther)
+	schoolLevelResult = append(schoolLevelResult, schoolFirstLevel, schoolSecondLevel, schoolThirdLevel, schoolFourthLevel, schoolOther)
 	return schoolLevelResult
 }
 func (biz *SchoolFilterBiz) SchoolLevelFilter(offerList []*global.OfferInfo, schoolLevel string) []*global.OfferInfo {
