@@ -4,7 +4,7 @@ import (
 	"admin_project/util/wxbizmsgcrypt"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"strings"
+	"io/ioutil"
 )
 
 var (
@@ -24,15 +24,16 @@ func SendWxMsgHandler() gin.HandlerFunc {
 			c.Set("errorCode", errCode)
 		}()
 		r := c.Request
-		fmt.Println(r.RequestURI, r.Header, r)
-		timestamp := strings.Join(r.Form["timestamp"], "")
-		nonce := strings.Join(r.Form["nonce"], "")
-		signature := strings.Join(r.Form["signature"], "")
-		postdata := make([]byte, 0)
-		r.Body.Read(postdata)
-		fmt.Println(timestamp, nonce, signature, postdata)
-		wxcpt := wxbizmsgcrypt.NewWXBizMsgCrypt(token, encodingAESKey, appid, wxbizmsgcrypt.XmlType)
-		msg, cryptErr := wxcpt.DecryptMsg(signature, timestamp, nonce, postdata)
+		fmt.Println(r.RequestURI, r.Header, "1", c.Request.PostForm, c.PostForm("nonce"))
+		timestamp := c.Query("timestamp")
+		nonce := c.Query("nonce")
+		signature := c.Query("signature")
+		bodyBytes, _ := ioutil.ReadAll(c.Request.Body)
+
+		fmt.Println(string(bodyBytes))
+		fmt.Println(timestamp, nonce, signature)
+		cryptor, _ := wechataes.NewWechatCryptor(appid, token, encodingAESKey)
+		msg, cryptErr := cryptor.DecryptMsg(signature, timestamp, nonce, string(bodyBytes))
 		fmt.Println(msg, cryptErr)
 
 	}
