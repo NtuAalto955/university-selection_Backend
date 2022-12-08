@@ -24,7 +24,7 @@ func SendWxMsgHandler() gin.HandlerFunc {
 			c.Set("errorCode", errCode)
 		}()
 		r := c.Request
-
+		fmt.Println(r.RequestURI, r.Header, r)
 		timestamp := strings.Join(r.Form["timestamp"], "")
 		nonce := strings.Join(r.Form["nonce"], "")
 		signature := strings.Join(r.Form["signature"], "")
