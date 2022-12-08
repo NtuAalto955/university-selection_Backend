@@ -1,3 +1,0 @@
-
-2022/11/19 16:27:00 [32m/Users/weizhifeng/github/university-selection_Backend/biz/school_filter_biz.go:29
-[0m[33m[557.090ms] [34;1m[rows:3474][0m SELECT * FROM `offer_info_tab` WHERE region IN ('North America') AND (major_type = 535)

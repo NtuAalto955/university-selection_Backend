@@ -30,7 +30,7 @@ func SendWxMsgHandler() gin.HandlerFunc {
 		signature := strings.Join(r.Form["signature"], "")
 		postdata := make([]byte, 0)
 		r.Body.Read(postdata)
-
+		fmt.Println(timestamp, nonce, signature, postdata)
 		wxcpt := wxbizmsgcrypt.NewWXBizMsgCrypt(token, encodingAESKey, appid, wxbizmsgcrypt.XmlType)
 		msg, cryptErr := wxcpt.DecryptMsg(signature, timestamp, nonce, postdata)
 		fmt.Println(msg, cryptErr)
