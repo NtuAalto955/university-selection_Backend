@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/groupcache/singleflight"
-	"github.com/prometheus/common/log"
 	"io/ioutil"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -68,7 +68,7 @@ func ProcessWxMsgHandler() gin.HandlerFunc {
 		}
 		_, err := c.Writer.Write(textRes.ToXml())
 		if err != nil {
-			log.Errorln(err)
+			log.Fatalln(err)
 		}
 	}
 }
@@ -86,7 +86,7 @@ func ProcessGptMsg(recv *util.TextMsg) {
 		}
 	})
 	if err != nil {
-		log.Errorln(err)
+		log.Fatalln(err)
 		return
 	}
 }

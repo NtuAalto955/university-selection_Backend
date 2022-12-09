@@ -7,11 +7,8 @@ import (
 	"admin_project/global"
 	"admin_project/middlerware"
 	"admin_project/routers"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 // @contact.name API Support
@@ -40,8 +37,8 @@ func main() {
 	https := gin.Default()
 	http := gin.Default()
 	//启动接口文档swagger
-	https.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	fmt.Println("在线api文档部署在：http://localhost:8080/swagger/index.html")
+	//https.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	//fmt.Println("在线api文档部署在：http://localhost:8080/swagger/index.html")
 	// 微信获取access token
 	biz.GetAccessToken()
 	//公共路由 注册，登录，验证码

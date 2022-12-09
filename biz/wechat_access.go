@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/prometheus/common/log"
+	"log"
+
 	"net/http"
 	"strconv"
 	"time"
@@ -25,7 +26,7 @@ func loop() int64 {
 	session, err := http.NewRequest("GET", fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%v&secret=%v", AppID, AppSecrect), nil)
 	resp, err := http.DefaultClient.Do(session)
 	if err != nil {
-		log.Errorln(err)
+		log.Fatalln(err)
 		return 0
 	}
 	defer resp.Body.Close()
@@ -33,7 +34,7 @@ func loop() int64 {
 	decoder := json.NewDecoder(resp.Body)
 	decoder.Decode(&accessToken)
 	if err != nil {
-		log.Errorln(err)
+		log.Fatalln(err)
 		return 0
 	}
 	expirTime, _ := strconv.ParseInt(accessToken.ExpireTime, 10, 64)
@@ -74,13 +75,13 @@ func ThirdPartyReply(userOpenID string, msg string) {
 	}
 	str, err := json.Marshal(reply)
 	if err != nil {
-		log.Error(err)
+		log.Fatalln(err)
 		return
 	}
 	session, err := http.NewRequest("POST", fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=%v", AccessToken), bytes.NewReader(str))
 	resp, err := http.DefaultClient.Do(session)
 	if err != nil {
-		log.Errorln(err)
+		log.Fatalln(err)
 		return
 	}
 	defer resp.Body.Close()

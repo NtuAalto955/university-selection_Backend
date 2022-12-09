@@ -6,7 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/google/uuid"
-	"github.com/prometheus/common/log"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -52,7 +52,7 @@ func newChatGPT() *ChatGPT {
 func (c *ChatGPT) updateSessionToken() {
 	session, err := http.NewRequest("GET", "https://chat.openai.com/api/auth/session", nil)
 	if err != nil {
-		log.Errorln(err)
+		log.Fatalln(err)
 		return
 	}
 	session.AddCookie(&http.Cookie{
@@ -66,7 +66,7 @@ func (c *ChatGPT) updateSessionToken() {
 	session.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15")
 	resp, err := http.DefaultClient.Do(session)
 	if err != nil {
-		log.Errorln(err)
+		log.Fatal(err)
 		return
 	}
 	defer resp.Body.Close()
@@ -74,14 +74,14 @@ func (c *ChatGPT) updateSessionToken() {
 		if cookie.Name == "__Secure-next-auth.session-token" {
 			c.sessionToken = cookie.Value
 			_ = os.WriteFile("sessionToken", []byte(cookie.Value), 0644)
-			log.Infoln("sessionToken 更新成功 , sessionToken =", cookie.Value)
+			log.Println("sessionToken 更新成功 , sessionToken =", cookie.Value)
 			break
 		}
 	}
 	var accessToken map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&accessToken)
 	if err != nil {
-		log.Errorln(err)
+		log.Fatal(err)
 		return
 	}
 	c.authorization = accessToken["accessToken"].(string)
@@ -103,20 +103,20 @@ func (c *ChatGPT) SendMsg(msg, OpenID string, ctx context.Context) string {
 	// 获取用户信息
 	info, ok := userInfoMap.Load(OpenID)
 	if !ok || info.ttl.Before(time.Now()) {
-		log.Infof("用户 %s 启动新的对话", OpenID)
+		log.Println("用户 %s 启动新的对话", OpenID)
 		info = &userInfo{
 			parentID:       uuid.New().String(),
 			conversationId: nil,
 		}
 		userInfoMap.Store(OpenID, info)
 	} else {
-		log.Infof("用户 %s 继续对话", OpenID)
+		log.Println("用户 %s 继续对话", OpenID)
 	}
 	info.ttl = time.Now().Add(5 * time.Minute)
 	// 发送请求
 	req, err := http.NewRequestWithContext(ctx, "POST", "https://chat.openai.com/backend-api/conversation", util.CreateChatReqBody(msg, info.parentID, info.conversationId))
 	if err != nil {
-		log.Errorln(err)
+		log.Println(err)
 		return "服务器异常, 请稍后再试"
 	}
 	req.Header.Set("Host", "chat.openai.com")
@@ -131,19 +131,19 @@ func (c *ChatGPT) SendMsg(msg, OpenID string, ctx context.Context) string {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Errorln(err)
+		log.Fatalln(err)
 		return "服务器异常, 请稍后再试"
 	}
 	defer resp.Body.Close()
 	bodyBytes, err := util.ReadWithCtx(ctx, resp.Body)
 	defer util.PutBytes(bodyBytes)
 	if err != nil {
-		log.Errorln(err)
+		log.Fatal(err)
 		return "服务器异常, 请稍后再试"
 	}
 	line := bytes.Split(bodyBytes, []byte("\n\n"))
 	if len(line) < 2 {
-		log.Errorln(*(*string)(unsafe.Pointer(&bodyBytes)))
+		log.Fatal(*(*string)(unsafe.Pointer(&bodyBytes)))
 		return "服务器异常, 请稍后再试"
 	}
 	endBlock := line[len(line)-3][6:]
