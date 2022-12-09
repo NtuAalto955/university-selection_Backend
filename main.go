@@ -51,7 +51,8 @@ func main() {
 		publicRouter.POST("/register", routers.RegisterHandler, middlerware.ReportProm)
 		publicRouter.POST("/login", routers.LoginHandler, middlerware.ReportProm)
 		publicRouter.POST("/get_filter_school", routers.FilterSchoolHandler(), middlerware.ReportProm)
-		publicRouter.POST("/send_wx_msg", routers.SendWxMsgHandler(), middlerware.ReportProm)
+		publicRouter.GET("/send_wx_msg", routers.VerifyWxToken(), middlerware.ReportProm)
+		publicRouter.POST("/send_wx_msg", routers.ProcessWxMsgHandler(), middlerware.ReportProm)
 
 	}
 

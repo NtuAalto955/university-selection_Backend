@@ -1,10 +1,18 @@
 package routers
 
 import (
+	"admin_project/biz"
+	"admin_project/util"
 	"admin_project/util/wxbizmsgcrypt"
+	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/golang/groupcache/singleflight"
+	"github.com/prometheus/common/log"
 	"io/ioutil"
+	"strconv"
+	"strings"
+	"time"
 )
 
 var (
@@ -13,9 +21,74 @@ var (
 	token          = "anXdXcBqzVUPIMxsPJnTnuVlscdMIW"
 	nonce          = "1320562132"
 	appid          = "qLwDXki7PzATAi2"
+	reqGroup       singleflight.Group
 )
 
-func SendWxMsgHandler() gin.HandlerFunc {
+func ProcessWxMsgHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 读取用户信息
+		bodyBytes, _ := ioutil.ReadAll(c.Request.Body)
+		recv := util.ToTextMsg(bodyBytes)
+
+		// 处理信息
+		// 回复消息
+		replyMsg := ""
+
+		// 关注公众号事件
+		if recv.MsgType == "event" {
+			if recv.Event == "unsubscribe" {
+				biz.DefaultGPT.DeleteUser(recv.FromUserName)
+			}
+			if recv.Event != "subscribe" {
+				util.TodoEvent(c.Writer)
+				return
+			}
+			replyMsg = ":) 感谢你发现了这里"
+		} else if recv.MsgType == "text" {
+			// 【收到不支持的消息类型，暂无法显示】
+			if strings.Contains(recv.Content, "【收到不支持的消息类型，暂无法显示】") {
+				util.TodoEvent(c.Writer)
+				return
+			}
+			// 最多等待 15 s， 超时返回空值
+			msg, err := reqGroup.Do(strconv.FormatInt(recv.MsgId, 10), func() (interface{}, error) {
+				ctx, cancel := context.WithCancel(context.Background())
+				defer cancel()
+				select {
+				case msg := <-biz.DefaultGPT.SendMsgChan(recv.Content, recv.FromUserName, ctx):
+					return msg, nil
+				case <-time.After(14*time.Second + 500*time.Millisecond):
+					// 超时返回错误
+					return "", fmt.Errorf("请求超时, MsgId: %d", recv.MsgId)
+				}
+			})
+			if err != nil {
+				log.Errorln(err)
+				util.TodoEvent(c.Writer)
+				return
+			}
+			replyMsg = msg.(string)
+		} else {
+			util.TodoEvent(c.Writer)
+			return
+		}
+
+		textRes := &util.TextRes{
+			ToUserName:   recv.FromUserName,
+			FromUserName: recv.ToUserName,
+			CreateTime:   time.Now().Unix(),
+			MsgType:      "text",
+			Content:      replyMsg,
+		}
+		_, err := c.Writer.Write(textRes.ToXml())
+		if err != nil {
+			log.Errorln(err)
+		}
+	}
+}
+
+//验证 微信token
+func VerifyWxToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		errCode := 200
