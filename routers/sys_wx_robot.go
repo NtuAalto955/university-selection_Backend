@@ -32,7 +32,7 @@ func ProcessWxMsgHandler() gin.HandlerFunc {
 
 		// 处理信息
 		// 回复消息
-		replyMsg := ""
+		replyMsg := ":"
 
 		// 关注公众号事件
 		if recv.MsgType == "event" {
@@ -50,24 +50,10 @@ func ProcessWxMsgHandler() gin.HandlerFunc {
 				util.TodoEvent(c.Writer)
 				return
 			}
-			// 最多等待 15 s， 超时返回空值
-			msg, err := reqGroup.Do(strconv.FormatInt(recv.MsgId, 10), func() (interface{}, error) {
-				ctx, cancel := context.WithCancel(context.Background())
-				defer cancel()
-				select {
-				case msg := <-biz.DefaultGPT.SendMsgChan(recv.Content, recv.FromUserName, ctx):
-					return msg, nil
-				case <-time.After(120*time.Second + 500*time.Millisecond):
-					// 超时返回错误
-					return "", fmt.Errorf("请求超时, MsgId: %d", recv.MsgId)
-				}
-			})
-			if err != nil {
-				log.Errorln(err)
-				util.TodoEvent(c.Writer)
-				return
-			}
-			replyMsg = msg.(string)
+			// chatGPT 基本都会超时，调用第三方客服回复，48h只有20条
+			go func() {
+				ProcessGptMsg(recv)
+			}()
 		} else {
 			util.TodoEvent(c.Writer)
 			return
@@ -77,13 +63,31 @@ func ProcessWxMsgHandler() gin.HandlerFunc {
 			ToUserName:   recv.FromUserName,
 			FromUserName: recv.ToUserName,
 			CreateTime:   time.Now().Unix(),
-			MsgType:      "text",
+			MsgType:      "transfer_customer_service",
 			Content:      replyMsg,
 		}
 		_, err := c.Writer.Write(textRes.ToXml())
 		if err != nil {
 			log.Errorln(err)
 		}
+	}
+}
+func ProcessGptMsg(recv *util.TextMsg) {
+	_, err := reqGroup.Do(strconv.FormatInt(recv.MsgId, 10), func() (interface{}, error) {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		select {
+		case msg := <-biz.DefaultGPT.SendMsgChan(recv.Content, recv.FromUserName, ctx):
+			biz.ThirdPartyReply(recv.FromUserName, msg)
+			return nil, nil
+		case <-time.After(300*time.Second + 500*time.Millisecond):
+			// 超时返回错误
+			return "", fmt.Errorf("请求超时, MsgId: %d", recv.MsgId)
+		}
+	})
+	if err != nil {
+		log.Errorln(err)
+		return
 	}
 }
 

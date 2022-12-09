@@ -1,6 +1,7 @@
 package main
 
 import (
+	"admin_project/biz"
 	"admin_project/core"
 	_ "admin_project/docs"
 	"admin_project/global"
@@ -41,6 +42,8 @@ func main() {
 	//启动接口文档swagger
 	https.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	fmt.Println("在线api文档部署在：http://localhost:8080/swagger/index.html")
+	// 微信获取access token
+	biz.GetAccessToken()
 	//公共路由 注册，登录，验证码
 	publicRouter := https.Group("")
 	publicRouter.Use(middlerware.TlsHandler())
