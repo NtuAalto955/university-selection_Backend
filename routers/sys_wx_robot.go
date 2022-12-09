@@ -57,7 +57,7 @@ func ProcessWxMsgHandler() gin.HandlerFunc {
 				select {
 				case msg := <-biz.DefaultGPT.SendMsgChan(recv.Content, recv.FromUserName, ctx):
 					return msg, nil
-				case <-time.After(14*time.Second + 500*time.Millisecond):
+				case <-time.After(120*time.Second + 500*time.Millisecond):
 					// 超时返回错误
 					return "", fmt.Errorf("请求超时, MsgId: %d", recv.MsgId)
 				}
