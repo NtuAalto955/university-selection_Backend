@@ -49,6 +49,5 @@ jobs:
         password: ${{ secrets.ALIYUN_SERVER_PWD}}
         script: |
           cd /root/university-selection_Backend
-          go build
           sh ../rc.sh
           
