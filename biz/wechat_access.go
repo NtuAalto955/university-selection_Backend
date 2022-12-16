@@ -1,13 +1,14 @@
 package biz
 
 import (
+	"admin_project/global"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -18,8 +19,8 @@ var (
 )
 
 type recvMsg struct {
-	AccessCode string `json:"access_code"`
-	ExpireTime string `json:"expires_in"`
+	AccessCode string `json:"access_token"`
+	ExpireTime int64  `json:"expires_in"`
 }
 
 func loop() int64 {
@@ -30,16 +31,18 @@ func loop() int64 {
 		return 0
 	}
 	defer resp.Body.Close()
-	var accessToken recvMsg
-	decoder := json.NewDecoder(resp.Body)
-	decoder.Decode(&accessToken)
+	accessToken := &recvMsg{}
+	a, _ := ioutil.ReadAll(resp.Body)
+	err = json.Unmarshal(a, accessToken)
+	fmt.Println(accessToken, string(a))
+
 	if err != nil {
-		log.Fatalln(err)
+		global.GLog.Error(err.Error())
 		return 0
 	}
-	expirTime, _ := strconv.ParseInt(accessToken.ExpireTime, 10, 64)
+
 	AccessToken = accessToken.AccessCode
-	return expirTime
+	return accessToken.ExpireTime
 }
 func GetAccessToken() {
 	expirTime := loop()
@@ -84,5 +87,7 @@ func ThirdPartyReply(userOpenID string, msg string) {
 		log.Fatalln(err)
 		return
 	}
+	a, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(a), err)
 	defer resp.Body.Close()
 }

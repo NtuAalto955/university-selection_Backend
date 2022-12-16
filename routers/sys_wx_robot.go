@@ -50,10 +50,26 @@ func ProcessWxMsgHandler() gin.HandlerFunc {
 				util.TodoEvent(c.Writer)
 				return
 			}
-			// chatGPT 基本都会超时，调用第三方客服回复，48h只有20条
-			go func() {
-				ProcessGptMsg(recv)
-			}()
+			// 最多等待 15 s， 超时返回空值
+			msg, err := reqGroup.Do(strconv.FormatInt(recv.MsgId, 10), func() (interface{}, error) {
+				ctx, cancel := context.WithCancel(context.Background())
+				defer cancel()
+
+				select {
+				case msg := <-biz.DefaultGPT.SendMsgChan(recv.Content, recv.FromUserName, ctx):
+					return msg, nil
+				case <-time.After(300*time.Second + 500*time.Millisecond):
+					// 超时返回错误
+					return "", fmt.Errorf("请求超时, MsgId: %d", recv.MsgId)
+				}
+			})
+			if err != nil {
+				log.Fatalln(err)
+				util.TodoEvent(c.Writer)
+				return
+			}
+			replyMsg = msg.(string)
+
 		} else {
 			util.TodoEvent(c.Writer)
 			return
@@ -63,7 +79,7 @@ func ProcessWxMsgHandler() gin.HandlerFunc {
 			ToUserName:   recv.FromUserName,
 			FromUserName: recv.ToUserName,
 			CreateTime:   time.Now().Unix(),
-			MsgType:      "transfer_customer_service",
+			MsgType:      "text",
 			Content:      replyMsg,
 		}
 		_, err := c.Writer.Write(textRes.ToXml())
@@ -78,6 +94,7 @@ func ProcessGptMsg(recv *util.TextMsg) {
 		defer cancel()
 		select {
 		case msg := <-biz.DefaultGPT.SendMsgChan(recv.Content, recv.FromUserName, ctx):
+			fmt.Println(msg)
 			biz.ThirdPartyReply(recv.FromUserName, msg)
 			return nil, nil
 		case <-time.After(300*time.Second + 500*time.Millisecond):
@@ -105,6 +122,13 @@ func VerifyWxToken() gin.HandlerFunc {
 		timestamp := c.Query("timestamp")
 		nonce := c.Query("nonce")
 		signature := c.Query("signature")
+		echostr := c.Query("echostr")
+		fmt.Println(echostr)
+		if echostr != "" {
+			c.String(200, c.Query("echostr"))
+			return
+		}
+
 		bodyBytes, _ := ioutil.ReadAll(c.Request.Body)
 
 		fmt.Println(string(bodyBytes))

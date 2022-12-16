@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"admin_project/global"
 	"admin_project/util"
 	"bytes"
 	"context"
@@ -52,7 +53,7 @@ func newChatGPT() *ChatGPT {
 func (c *ChatGPT) updateSessionToken() {
 	session, err := http.NewRequest("GET", "https://chat.openai.com/api/auth/session", nil)
 	if err != nil {
-		log.Fatalln(err)
+		global.GLog.Error(err.Error())
 		return
 	}
 	session.AddCookie(&http.Cookie{
@@ -66,7 +67,7 @@ func (c *ChatGPT) updateSessionToken() {
 	session.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15")
 	resp, err := http.DefaultClient.Do(session)
 	if err != nil {
-		log.Fatal(err)
+		global.GLog.Error(err.Error())
 		return
 	}
 	defer resp.Body.Close()
@@ -81,7 +82,7 @@ func (c *ChatGPT) updateSessionToken() {
 	var accessToken map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&accessToken)
 	if err != nil {
-		log.Fatal(err)
+		global.GLog.Error(err.Error())
 		return
 	}
 	c.authorization = accessToken["accessToken"].(string)
@@ -103,14 +104,14 @@ func (c *ChatGPT) SendMsg(msg, OpenID string, ctx context.Context) string {
 	// 获取用户信息
 	info, ok := userInfoMap.Load(OpenID)
 	if !ok || info.ttl.Before(time.Now()) {
-		log.Println("用户 %s 启动新的对话", OpenID)
+		log.Printf("用户 %s 启动新的对话", OpenID)
 		info = &userInfo{
 			parentID:       uuid.New().String(),
 			conversationId: nil,
 		}
 		userInfoMap.Store(OpenID, info)
 	} else {
-		log.Println("用户 %s 继续对话", OpenID)
+		log.Printf("用户 %s 继续对话", OpenID)
 	}
 	info.ttl = time.Now().Add(5 * time.Minute)
 	// 发送请求
@@ -135,6 +136,7 @@ func (c *ChatGPT) SendMsg(msg, OpenID string, ctx context.Context) string {
 		return "服务器异常, 请稍后再试"
 	}
 	defer resp.Body.Close()
+	//bodyBytes, err := ioutil.ReadAll(resp.Body)
 	bodyBytes, err := util.ReadWithCtx(ctx, resp.Body)
 	defer util.PutBytes(bodyBytes)
 	if err != nil {
